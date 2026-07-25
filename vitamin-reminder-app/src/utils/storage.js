@@ -1,40 +1,28 @@
-const USER_PROFILE_KEY = 'vitaminReminder.userProfile'
-const DAILY_CHECKLIST_KEY = 'vitaminReminder.dailyChecklist'
+const PREFIX = 'solaris.'
 
-export function loadUserProfile() {
+export function loadJSON(key, fallback) {
   try {
-    const raw = localStorage.getItem(USER_PROFILE_KEY)
-    return raw ? JSON.parse(raw) : null
+    const raw = localStorage.getItem(PREFIX + key)
+    return raw ? JSON.parse(raw) : fallback
   } catch {
-    return null
+    return fallback
   }
 }
 
-export function saveUserProfile(profile) {
+export function saveJSON(key, value) {
   try {
-    if (profile === null) {
-      localStorage.removeItem(USER_PROFILE_KEY)
+    if (value === null || value === undefined) {
+      localStorage.removeItem(PREFIX + key)
     } else {
-      localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile))
+      localStorage.setItem(PREFIX + key, JSON.stringify(value))
     }
   } catch {
     // localStorage unavailable (e.g. private browsing quota) — fail silently
   }
 }
 
-export function loadDailyChecklist() {
-  try {
-    const raw = localStorage.getItem(DAILY_CHECKLIST_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-
-export function saveDailyChecklist(checklist) {
-  try {
-    localStorage.setItem(DAILY_CHECKLIST_KEY, JSON.stringify(checklist))
-  } catch {
-    // localStorage unavailable (e.g. private browsing quota) — fail silently
-  }
+export function createId() {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }

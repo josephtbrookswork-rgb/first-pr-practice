@@ -1,23 +1,22 @@
-export function getTodayDateString() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
+export function getTodayDateString(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
 
-export function getMinutesSinceMidnight(date = new Date()) {
-  return date.getHours() * 60 + date.getMinutes()
+export function formatFriendlyDate(date = new Date()) {
+  return date.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  })
 }
 
-export function parseTimeToMinutes(hhmm) {
-  const [hours, minutes] = hhmm.split(':').map(Number)
-  return hours * 60 + minutes
-}
-
-export function formatTimeLabel(hhmm) {
-  const [hours, minutes] = hhmm.split(':').map(Number)
-  const period = hours >= 12 ? 'PM' : 'AM'
-  const displayHour = ((hours + 11) % 12) + 1
-  return `${displayHour}:${String(minutes).padStart(2, '0')} ${period}`
+export function getGreeting(date = new Date()) {
+  const hour = date.getHours()
+  if (hour < 5) return 'Good night'
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
 }

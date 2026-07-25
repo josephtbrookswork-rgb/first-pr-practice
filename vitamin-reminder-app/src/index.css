@@ -1,1 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo:wght@400&family=Figtree:wght@400;600;700&display=swap');
 @import "tailwindcss";
+@import "./styles/organic.css";
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+}
+
+@layer base {
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+}
