@@ -1,0 +1,69 @@
+workflows:
+  solaris-ios:
+    name: Solaris iOS (Capacitor)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    working_directory: vitamin-reminder-app
+
+    environment:
+      node: 22
+      xcode: latest
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+        BUNDLE_ID: "com.solaris.app"
+      # Create this integration in Codemagic under Team settings > Integrations
+      # > App Store Connect, using an App Store Connect API key from
+      # https://appstoreconnect.apple.com/access/api. Name it "solaris_appstore"
+      # (or update the name below to match whatever you call it).
+      integrations:
+        app_store_connect: solaris_appstore
+
+    # No trigger configured on purpose — builds are manual for now (Start new
+    # build > this workflow, in the Codemagic dashboard) so an iOS build
+    # doesn't fire on every push to main while the web app is iterated on.
+    # To build automatically on push instead, uncomment:
+    # triggering:
+    #   events:
+    #     - push
+    #   branch_patterns:
+    #     - pattern: main
+    #       include: true
+
+    scripts:
+      - name: Install npm dependencies
+        script: npm install
+
+      - name: Build web app and sync into the Capacitor iOS project
+        script: npm run cap:sync
+
+      - name: Set up automatic code signing
+        script: |
+          xcode-project use-profiles
+
+      # Not included: an automatic build-number bump. App Store Connect
+      # requires a unique, increasing build number per TestFlight upload,
+      # so once you're doing repeat uploads you'll want a step here (e.g.
+      # via `agvtool`, which needs the Xcode project's versioning system
+      # set to "Apple Generic" first) or Codemagic's own build number env
+      # var wired into the project — worth adding once the first build
+      # succeeds and you know what the project's actual versioning setup
+      # looks like.
+
+      - name: Build ipa for distribution
+        script: |
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # Leave app_store submission off until you're ready — TestFlight
+        # is the safer default for trying builds on your own device first.
+        submit_to_app_store: false

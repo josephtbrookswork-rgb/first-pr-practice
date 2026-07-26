@@ -72,3 +72,40 @@ native Capacitor plugins for a fuller iOS experience:
   swapping to [`@capacitor/local-notifications`](https://capacitorjs.com/docs/apis/local-notifications),
   which schedules actual OS-level notifications and needs its own permission
   flow.
+
+## Building iOS without a local Mac (via Codemagic)
+
+If your Mac can't run a current Xcode (Apple requires apps be built against a
+recent SDK to submit at all, so an old local Xcode wouldn't get you to the
+App Store even if it ran), [`codemagic.yaml`](../codemagic.yaml) at the repo
+root defines a [Codemagic](https://codemagic.io) workflow that builds this
+project on their own up-to-date Mac infrastructure — no local Mac needed for
+day-to-day builds.
+
+This config was written for Codemagic's documented conventions but hasn't
+been run end-to-end (that requires an actual Codemagic account and Apple
+signing credentials, neither of which exist yet), so expect to troubleshoot
+the first build. Setup is one-time and happens in Codemagic's dashboard —
+none of it can be done from a repo:
+
+1. Sign up at [codemagic.io](https://codemagic.io) (GitHub sign-in is the
+   easiest way in, since it ties directly to this repo) and add
+   `first-pr-practice` as an app.
+2. Codemagic should detect the `codemagic.yaml` at the repo root automatically
+   and offer the `solaris-ios` workflow.
+3. Generate an App Store Connect API key at
+   [appstoreconnect.apple.com/access/api](https://appstoreconnect.apple.com/access/api)
+   (requires the paid Apple Developer Program membership) and add it in
+   Codemagic under **Team settings → Integrations → App Store Connect**. Name
+   it `solaris_appstore` to match `codemagic.yaml`, or update that file if you
+   name it something else.
+4. Make sure an app record for `com.solaris.app` exists in App Store Connect
+   (create one there first if not — Codemagic doesn't do this for you).
+5. From the Codemagic dashboard, start a build of the `solaris-ios` workflow.
+   It builds and signs automatically, then uploads to TestFlight.
+
+The workflow doesn't auto-trigger on every push to `main` on purpose (iOS
+builds cost build-minutes, and most changes are to the web app, not the
+native shell) — it's manual-start only for now. That's easy to change in
+`codemagic.yaml` once it's actually building successfully and you want it
+automated.
