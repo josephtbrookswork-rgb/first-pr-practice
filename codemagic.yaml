@@ -21,7 +21,7 @@ workflows:
     # Codemagic's own maintained implementation do this is more reliable.
     ios_signing:
       distribution_type: app_store
-      bundle_identifier: com.solaris.app
+      bundle_identifier: com.josephbrooks.solaris
 
     environment:
       node: 22
@@ -33,7 +33,7 @@ workflows:
         # against the .xcodeproj directly instead.
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-        BUNDLE_ID: "com.solaris.app"
+        BUNDLE_ID: "com.josephbrooks.solaris"
 
     # No trigger configured on purpose — builds are manual for now (Start new
     # build > this workflow, in the Codemagic dashboard) so an iOS build

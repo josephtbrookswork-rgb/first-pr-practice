@@ -100,7 +100,7 @@ none of it can be done from a repo:
    Codemagic under **Team settings → Integrations → App Store Connect**. Name
    it `solaris_appstore` to match `codemagic.yaml`, or update that file if you
    name it something else.
-4. Make sure an app record for `com.solaris.app` exists in App Store Connect
+4. Make sure an app record for `com.josephbrooks.solaris` exists in App Store Connect
    (create one there first if not — Codemagic doesn't do this for you).
 5. From the Codemagic dashboard, start a build of the `solaris-ios` workflow.
    It builds and signs automatically, then uploads to TestFlight.
