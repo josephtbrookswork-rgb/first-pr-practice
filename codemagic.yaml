@@ -5,6 +5,13 @@ workflows:
     instance_type: mac_mini_m2
     working_directory: vitamin-reminder-app
 
+    # Create this integration in Codemagic under Team settings > Integrations
+    # > App Store Connect, using an App Store Connect API key from
+    # https://appstoreconnect.apple.com/access/api. Name it "solaris_appstore"
+    # (or update the name below to match whatever you call it).
+    integrations:
+      app_store_connect: solaris_appstore
+
     environment:
       node: 22
       xcode: latest
@@ -12,12 +19,6 @@ workflows:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.solaris.app"
-      # Create this integration in Codemagic under Team settings > Integrations
-      # > App Store Connect, using an App Store Connect API key from
-      # https://appstoreconnect.apple.com/access/api. Name it "solaris_appstore"
-      # (or update the name below to match whatever you call it).
-      integrations:
-        app_store_connect: solaris_appstore
 
     # No trigger configured on purpose — builds are manual for now (Start new
     # build > this workflow, in the Codemagic dashboard) so an iOS build
