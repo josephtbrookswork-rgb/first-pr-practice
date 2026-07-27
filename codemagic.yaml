@@ -12,6 +12,17 @@ workflows:
     integrations:
       app_store_connect: solaris_appstore
 
+    # Codemagic's built-in automatic signing: it handles fetching/creating
+    # the certificate and provisioning profile itself (checking both your
+    # uploaded Code Signing Identity and Apple's account), instead of us
+    # hand-scripting `keychain` / `app-store-connect fetch-signing-files` /
+    # `xcode-project use-profiles` calls — which took several rounds of
+    # trial-and-error to get wrong in slightly different ways. Letting
+    # Codemagic's own maintained implementation do this is more reliable.
+    ios_signing:
+      distribution_type: app_store
+      bundle_identifier: com.solaris.app
+
     environment:
       node: 22
       xcode: latest
@@ -41,21 +52,6 @@ workflows:
 
       - name: Build web app and sync into the Capacitor iOS project
         script: npm run cap:sync
-
-      - name: Add certificates to keychain
-        script: |
-          keychain initialize
-          keychain add-certificates
-
-      - name: Fetch signing files
-        script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
-
-      - name: Set up automatic code signing
-        script: |
-          xcode-project use-profiles
 
       # Not included: an automatic build-number bump. App Store Connect
       # requires a unique, increasing build number per TestFlight upload,
