@@ -16,7 +16,11 @@ workflows:
       node: 22
       xcode: latest
       vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        # No .xcworkspace exists — this project uses Swift Package Manager,
+        # not CocoaPods, and Capacitor only generates a standalone workspace
+        # file when CocoaPods needs one to merge in the Pods project. Build
+        # against the .xcodeproj directly instead.
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.solaris.app"
 
@@ -54,7 +58,7 @@ workflows:
       - name: Build ipa for distribution
         script: |
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
 
     artifacts:

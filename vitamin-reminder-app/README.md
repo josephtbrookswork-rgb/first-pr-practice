@@ -48,8 +48,9 @@ possible from this environment. The steps from here:
 
 1. On a Mac, clone the repo and `cd vitamin-reminder-app && npm install`.
 2. `npm run cap:open` — builds the web app, syncs it into the iOS project,
-   and opens `ios/App/App.xcworkspace` in Xcode. (Dependencies are resolved
-   via Swift Package Manager, not CocoaPods — no `pod install` needed.)
+   and opens `ios/App/App.xcodeproj` in Xcode. (Dependencies are resolved
+   via Swift Package Manager, not CocoaPods, so there's no `.xcworkspace` —
+   just the `.xcodeproj` — and no `pod install` needed.)
 3. In Xcode: sign in with your Apple ID under Signing & Capabilities, pick a
    development team, and run on a simulator or your own device to test.
 4. To publish: you'll need an active
