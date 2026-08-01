@@ -35,6 +35,12 @@ export function AppStateProvider({ children }) {
   const [notificationsEnabled, setNotificationsEnabledState] = useState(() => loadJSON('notificationsEnabled', false))
   const [reminders, setReminders] = useState(() => loadJSON('reminders', DEFAULT_REMINDERS))
   const [notificationPermission, setNotificationPermission] = useState(getNotificationPermission)
+  const [theme, setTheme] = useState(() => loadJSON('theme', 'default'))
+
+  useEffect(() => saveJSON('theme', theme), [theme])
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
 
   useEffect(() => saveJSON('profile', profile), [profile])
   useEffect(() => saveJSON('checkIn', checkIn), [checkIn])
@@ -242,6 +248,8 @@ export function AppStateProvider({ children }) {
       notificationPermission,
       reminders,
       updateReminder,
+      theme,
+      setTheme,
     }),
     [
       profile,
@@ -267,6 +275,7 @@ export function AppStateProvider({ children }) {
       notificationPermission,
       reminders,
       updateReminder,
+      theme,
     ],
   )
 

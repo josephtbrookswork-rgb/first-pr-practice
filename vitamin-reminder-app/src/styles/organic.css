@@ -79,6 +79,104 @@
   --tap-min: 44px;
 }
 
+/* — theme presets — swap the accent scales + surfaces; --color-neutral-*,
+   --color-danger* and spacing/radius tokens stay shared across all themes. */
+:root[data-theme="pink"] {
+  --color-bg: #fdf1f6;
+  --color-surface: #fbe1ec;
+  --color-text: #241620;
+  --color-divider: color-mix(in srgb, #241620 16%, transparent);
+
+  --color-accent-100: #ffeef5;
+  --color-accent-200: #ffd6e8;
+  --color-accent-300: #ffb0d3;
+  --color-accent-400: #f57fb3;
+  --color-accent-500: #e35998;
+  --color-accent-600: #c93f7e;
+  --color-accent-700: #a52f65;
+  --color-accent-800: #7a2249;
+  --color-accent-900: #4f1730;
+  --color-accent: var(--color-accent-500);
+
+  --color-accent-2-100: #fbeafc;
+  --color-accent-2-200: #f3d0f5;
+  --color-accent-2-300: #e6aeea;
+  --color-accent-2-400: #cf85d6;
+  --color-accent-2-500: #b164ba;
+  --color-accent-2-600: #954ba0;
+  --color-accent-2-700: #743a7e;
+  --color-accent-2-800: #522a58;
+  --color-accent-2-900: #351b3a;
+  --color-accent-2: var(--color-accent-2-500);
+
+  --color-accent-text: var(--color-accent-700);
+  --color-accent-2-text: var(--color-accent-2-800);
+}
+
+:root[data-theme="blue"] {
+  --color-bg: #eef4fb;
+  --color-surface: #dde9f7;
+  --color-text: #121c26;
+  --color-divider: color-mix(in srgb, #121c26 16%, transparent);
+
+  --color-accent-100: #e8f1fd;
+  --color-accent-200: #c9e0fa;
+  --color-accent-300: #9cc7f5;
+  --color-accent-400: #63a3ec;
+  --color-accent-500: #3d82d6;
+  --color-accent-600: #2c65b0;
+  --color-accent-700: #204c87;
+  --color-accent-800: #17365f;
+  --color-accent-900: #0f2340;
+  --color-accent: var(--color-accent-500);
+
+  --color-accent-2-100: #e6f7f5;
+  --color-accent-2-200: #c3ece5;
+  --color-accent-2-300: #96dbd0;
+  --color-accent-2-400: #62c0b1;
+  --color-accent-2-500: #3fa190;
+  --color-accent-2-600: #2d8072;
+  --color-accent-2-700: #21615a;
+  --color-accent-2-800: #17453f;
+  --color-accent-2-900: #0f2d29;
+  --color-accent-2: var(--color-accent-2-500);
+
+  --color-accent-text: var(--color-accent-700);
+  --color-accent-2-text: var(--color-accent-2-800);
+}
+
+:root[data-theme="purple"] {
+  --color-bg: #f5f0fb;
+  --color-surface: #e6ddf5;
+  --color-text: #17102a;
+  --color-divider: color-mix(in srgb, #17102a 16%, transparent);
+
+  --color-accent-100: #f2ecfd;
+  --color-accent-200: #ddccfa;
+  --color-accent-300: #c1a6f5;
+  --color-accent-400: #9e79ea;
+  --color-accent-500: #7f57d6;
+  --color-accent-600: #6440b3;
+  --color-accent-700: #4c2f8a;
+  --color-accent-800: #362163;
+  --color-accent-900: #221541;
+  --color-accent: var(--color-accent-500);
+
+  --color-accent-2-100: #eeecfd;
+  --color-accent-2-200: #d5cffa;
+  --color-accent-2-300: #b3a8f2;
+  --color-accent-2-400: #8c7ce3;
+  --color-accent-2-500: #6c5ccb;
+  --color-accent-2-600: #5346a8;
+  --color-accent-2-700: #3f3580;
+  --color-accent-2-800: #2c255c;
+  --color-accent-2-900: #1c173c;
+  --color-accent-2: var(--color-accent-2-500);
+
+  --color-accent-text: var(--color-accent-700);
+  --color-accent-2-text: var(--color-accent-2-800);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }

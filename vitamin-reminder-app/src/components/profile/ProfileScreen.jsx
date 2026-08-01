@@ -1,12 +1,19 @@
 import { useState } from 'react'
-import { MapPin, MapPinOff } from 'lucide-react'
+import { MapPin, MapPinOff, Check } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import Field from '../ui/Field'
 import Button from '../ui/Button'
 import ReminderSettings from './ReminderSettings'
 
+const THEME_OPTIONS = [
+  { id: 'default', label: 'Default', swatch: '#c67139' },
+  { id: 'pink', label: 'Pink', swatch: '#e35998' },
+  { id: 'blue', label: 'Blue', swatch: '#3d82d6' },
+  { id: 'purple', label: 'Purple', swatch: '#7f57d6' },
+]
+
 function ProfileScreen() {
-  const { profile, updateProfile, resetOnboarding } = useAppState()
+  const { profile, updateProfile, resetOnboarding, theme, setTheme } = useAppState()
   const [name, setName] = useState(profile?.name ?? '')
   const [age, setAge] = useState(profile?.age != null ? String(profile.age) : '')
   const [saved, setSaved] = useState(false)
@@ -101,6 +108,37 @@ function ProfileScreen() {
       </div>
 
       <ReminderSettings />
+
+      <div className="card" style={{ gap: 'var(--space-3)' }}>
+        <div className="card-title">Theme</div>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+          {THEME_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className="chip"
+              aria-pressed={theme === option.id}
+              onClick={() => setTheme(option.id)}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  background: option.swatch,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {theme === option.id && <Check size={10} strokeWidth={3} color="#fff" />}
+              </span>
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div style={{ flex: 1 }} />
 

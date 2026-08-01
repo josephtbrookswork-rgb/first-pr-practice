@@ -5,6 +5,8 @@ const FOCUSABLE_SELECTOR =
 
 export function useFocusTrap(active, onClose) {
   const containerRef = useRef(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!active) return undefined
@@ -19,7 +21,7 @@ export function useFocusTrap(active, onClose) {
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
         event.stopPropagation()
-        onClose?.()
+        onCloseRef.current?.()
         return
       }
       if (event.key !== 'Tab') return
@@ -43,7 +45,7 @@ export function useFocusTrap(active, onClose) {
       document.removeEventListener('keydown', handleKeyDown, true)
       if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus()
     }
-  }, [active, onClose])
+  }, [active])
 
   return containerRef
 }
