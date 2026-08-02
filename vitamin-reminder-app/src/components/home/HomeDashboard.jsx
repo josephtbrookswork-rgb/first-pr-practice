@@ -1,5 +1,18 @@
 import { useMemo, useState } from 'react'
-import { Check, Circle, Sun as SunIcon, MapPinOff, Plus, ChevronDown, ChevronUp, Square, CheckSquare } from 'lucide-react'
+import {
+  Check,
+  Circle,
+  Sun as SunIcon,
+  MapPinOff,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  Square,
+  CheckSquare,
+  X,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import { formatFriendlyDate, getGreeting, getTodayDateString } from '../../utils/date'
 import { getMockUvIndex, getUvRiskLabel } from '../../utils/uv'
@@ -20,12 +33,15 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
     submitCheckIn,
     scheduleItems,
     toggleScheduleItemTaken,
+    toggleScheduleItemSkipped,
     takenTodayCount,
     sessionQuote,
     customChecklists,
     addChecklist,
     addChecklistItem,
     toggleChecklistItem,
+    moveChecklist,
+    moveChecklistItem,
   } = useAppState()
   const [checkInOpen, setCheckInOpen] = useState(false)
   const [addChecklistOpen, setAddChecklistOpen] = useState(false)
@@ -170,7 +186,9 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
             {sortedStack.map((item) => {
               const phase = getPhaseMeta(item.phase)
               const Icon = phase.Icon
-              const isTaken = item.lastTakenDate === getTodayDateString()
+              const today = getTodayDateString()
+              const isTaken = item.lastTakenDate === today
+              const isSkipped = item.skippedDate === today
               return (
                 <li key={item.id}>
                   <div className="rowcard" style={{ padding: 'var(--space-3)', background: 'var(--color-bg)' }}>
@@ -186,6 +204,9 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
                       {item.dosageMg ? (
                         <span style={{ color: 'var(--color-text-muted)', fontSize: 12 }}> · {item.dosageMg}mg</span>
                       ) : null}
+                      {isSkipped && (
+                        <span style={{ color: 'var(--color-danger-text)', fontSize: 12 }}> · Skipped</span>
+                      )}
                       <span className="sr-only"> — {phase.label}{item.anchor ? `, tied to ${item.anchor}` : ''}</span>
                     </div>
                     {isTaken ? (
@@ -211,13 +232,53 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
                       >
                         <Check size={20} strokeWidth={3} aria-hidden="true" />
                       </button>
+                    ) : isSkipped ? (
+                      <button
+                        type="button"
+                        aria-pressed="true"
+                        aria-label={`Unmark ${item.name} as skipped`}
+                        onClick={() => toggleScheduleItemSkipped(item.id)}
+                        style={{
+                          width: 40,
+                          height: 40,
+                          minHeight: 40,
+                          flex: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '50%',
+                          border: '2px solid var(--color-danger)',
+                          background: 'var(--color-danger)',
+                          color: '#fff',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <X size={20} strokeWidth={3} aria-hidden="true" />
+                      </button>
                     ) : (
                       <>
-                        <Circle
-                          size={16}
-                          aria-hidden="true"
-                          style={{ color: 'var(--color-text-muted)', flex: 'none' }}
-                        />
+                        <button
+                          type="button"
+                          aria-pressed="false"
+                          aria-label={`Mark ${item.name} as not taken today`}
+                          onClick={() => toggleScheduleItemSkipped(item.id)}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            minHeight: 32,
+                            flex: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '50%',
+                            border: '1.5px solid var(--color-divider)',
+                            background: 'transparent',
+                            color: 'var(--color-text-muted)',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <X size={16} aria-hidden="true" />
+                        </button>
                         <Tag
                           as="button"
                           variant="outline"
@@ -297,78 +358,183 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
               </li>
             )
           })}
-          {customChecklists.map((list) => {
+          {customChecklists.map((list, listIndex) => {
             const isExpanded = expandedChecklists.has(list.id)
             const doneCount = list.items.filter((item) => item.checked).length
             const allDone = list.items.length > 0 && doneCount === list.items.length
             return (
               <li key={list.id}>
-                <RowCard
-                  style={{ padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
-                  onClick={() => toggleExpanded(list.id)}
-                  aria-expanded={isExpanded}
-                >
-                  <span
-                    className="iconwrap"
-                    aria-hidden="true"
+                <div className="rowcard" style={{ padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(list.id)}
+                    aria-expanded={isExpanded}
                     style={{
-                      width: 28,
-                      height: 28,
-                      background: allDone ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
-                      color: allDone ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-3)',
+                      flex: 1,
+                      minHeight: 40,
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      font: 'inherit',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      color: 'inherit',
                     }}
                   >
-                    {allDone ? <Check size={14} aria-hidden="true" /> : <CheckSquare size={14} aria-hidden="true" />}
-                  </span>
-                  <span style={{ flex: 1, fontSize: 13, textAlign: 'left' }}>{list.title}</span>
-                  <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                    {list.items.length === 0 ? 'Empty' : `${doneCount}/${list.items.length}`}
-                  </span>
-                  {isExpanded ? (
-                    <ChevronUp size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
-                  ) : (
-                    <ChevronDown size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
-                  )}
-                </RowCard>
+                    <span
+                      className="iconwrap"
+                      aria-hidden="true"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        background: allDone ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
+                        color: allDone ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      {allDone ? <Check size={14} aria-hidden="true" /> : <CheckSquare size={14} aria-hidden="true" />}
+                    </span>
+                    <span style={{ flex: 1, fontSize: 13 }}>{list.title}</span>
+                    <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                      {list.items.length === 0 ? 'Empty' : `${doneCount}/${list.items.length}`}
+                    </span>
+                    {isExpanded ? (
+                      <ChevronUp size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                    ) : (
+                      <ChevronDown size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                    )}
+                  </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 'none' }}>
+                    <button
+                      type="button"
+                      aria-label={`Move ${list.title} up`}
+                      disabled={listIndex === 0}
+                      onClick={() => moveChecklist(list.id, -1)}
+                      style={{
+                        width: 26,
+                        height: 20,
+                        minHeight: 20,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: listIndex === 0 ? 'default' : 'pointer',
+                        color: listIndex === 0 ? 'var(--color-neutral-400)' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      <ArrowUp size={14} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Move ${list.title} down`}
+                      disabled={listIndex === customChecklists.length - 1}
+                      onClick={() => moveChecklist(list.id, 1)}
+                      style={{
+                        width: 26,
+                        height: 20,
+                        minHeight: 20,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: listIndex === customChecklists.length - 1 ? 'default' : 'pointer',
+                        color: listIndex === customChecklists.length - 1 ? 'var(--color-neutral-400)' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      <ArrowDown size={14} aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
 
                 {isExpanded && (
                   <div style={{ padding: 'var(--space-1) var(--space-3) 0', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {list.items.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        aria-pressed={item.checked}
-                        onClick={() => toggleChecklistItem(list.id, item.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                          width: '100%',
-                          minHeight: 40,
-                          background: 'none',
-                          border: 'none',
-                          padding: '6px 4px',
-                          font: 'inherit',
-                          fontSize: 13,
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          color: 'var(--color-text)',
-                        }}
-                      >
-                        {item.checked ? (
-                          <CheckSquare size={18} aria-hidden="true" style={{ color: 'var(--color-accent-2-700)', flex: 'none' }} />
-                        ) : (
-                          <Square size={18} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
-                        )}
-                        <span
+                    {list.items.map((item, itemIndex) => (
+                      <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <button
+                          type="button"
+                          aria-pressed={item.checked}
+                          onClick={() => toggleChecklistItem(list.id, item.id)}
                           style={{
-                            textDecoration: item.checked ? 'line-through' : 'none',
-                            color: item.checked ? 'var(--color-text-muted)' : 'var(--color-text)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            flex: 1,
+                            minHeight: 40,
+                            background: 'none',
+                            border: 'none',
+                            padding: '6px 4px',
+                            font: 'inherit',
+                            fontSize: 13,
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            color: 'var(--color-text)',
                           }}
                         >
-                          {item.text}
-                        </span>
-                      </button>
+                          {item.checked ? (
+                            <CheckSquare size={18} aria-hidden="true" style={{ color: 'var(--color-accent-2-700)', flex: 'none' }} />
+                          ) : (
+                            <Square size={18} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                          )}
+                          <span
+                            style={{
+                              textDecoration: item.checked ? 'line-through' : 'none',
+                              color: item.checked ? 'var(--color-text-muted)' : 'var(--color-text)',
+                            }}
+                          >
+                            {item.text}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Move ${item.text} up`}
+                          disabled={itemIndex === 0}
+                          onClick={() => moveChecklistItem(list.id, item.id, -1)}
+                          style={{
+                            width: 26,
+                            height: 26,
+                            minHeight: 26,
+                            flex: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: itemIndex === 0 ? 'default' : 'pointer',
+                            color: itemIndex === 0 ? 'var(--color-neutral-400)' : 'var(--color-text-muted)',
+                          }}
+                        >
+                          <ArrowUp size={13} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Move ${item.text} down`}
+                          disabled={itemIndex === list.items.length - 1}
+                          onClick={() => moveChecklistItem(list.id, item.id, 1)}
+                          style={{
+                            width: 26,
+                            height: 26,
+                            minHeight: 26,
+                            flex: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: itemIndex === list.items.length - 1 ? 'default' : 'pointer',
+                            color: itemIndex === list.items.length - 1 ? 'var(--color-neutral-400)' : 'var(--color-text-muted)',
+                          }}
+                        >
+                          <ArrowDown size={13} aria-hidden="true" />
+                        </button>
+                      </div>
                     ))}
                     <ChecklistAddItemRow onAdd={(text) => addChecklistItem(list.id, text)} />
                   </div>

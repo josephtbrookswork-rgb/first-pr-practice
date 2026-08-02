@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, X } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import { getTodayDateString, formatFriendlyDate } from '../../utils/date'
 import { getMonthMatrix, formatMonthYear, WEEKDAY_SHORT, WEEKDAY_FULL } from '../../utils/calendar'
@@ -166,11 +166,30 @@ function CalendarScreen() {
               </>
             )}
 
-            {!selectedEntry.checkIn && selectedEntry.takenItems.length === 0 && (
-              <p className="text-muted" style={{ fontSize: 13, margin: 0 }}>
-                No entry logged for this day yet.
-              </p>
+            {selectedEntry.skippedItems?.length > 0 && (
+              <>
+                <p style={{ fontSize: 13, fontWeight: 600, margin: 'var(--space-2) 0 0' }}>Skipped</p>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {selectedEntry.skippedItems.map((item) => (
+                    <li
+                      key={item.id}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: 'var(--color-bg)', borderRadius: 999 }}
+                    >
+                      <X size={14} strokeWidth={2.75} aria-hidden="true" style={{ color: 'var(--color-danger-text)', flex: 'none' }} />
+                      <span style={{ fontSize: 13, flex: 1 }}>{item.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
+
+            {!selectedEntry.checkIn &&
+              selectedEntry.takenItems.length === 0 &&
+              !(selectedEntry.skippedItems?.length > 0) && (
+                <p className="text-muted" style={{ fontSize: 13, margin: 0 }}>
+                  No entry logged for this day yet.
+                </p>
+              )}
           </div>
         )}
       </section>

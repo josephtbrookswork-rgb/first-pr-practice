@@ -511,6 +511,11 @@ button.tag-btn:focus-visible { outline: 2px solid var(--color-accent-700); outli
   border-radius: 30px 34px 28px 36px / 34px 26px 36px 28px;
   box-shadow: 3px 4px 0 color-mix(in srgb, var(--color-text) 20%, transparent);
 }
+/* Tailwind's Preflight `button{border:0 solid}` reset otherwise wins over the
+   rule above on <button>-rendered cards (e.g. tappable check-in/stat cards)
+   despite .card-sketch's higher specificity — verified via computed-style
+   inspection. The compound selector restores it without needing !important. */
+button.card-sketch { border: 2.5px solid var(--color-text); }
 button.card-sketch:active { box-shadow: 1px 2px 0 color-mix(in srgb, var(--color-text) 20%, transparent); transform: translate(2px, 2px); }
 
 /* — page transitions: a light fade + rise, replayed by remounting the

@@ -11,7 +11,6 @@ function StatCard({ value, label, valueColor, onClick, ariaLabel, children }) {
         background: 'var(--color-neutral-100)',
         padding: 'var(--space-4)',
         textAlign: 'left',
-        border: 'none',
         font: 'inherit',
         cursor: onClick ? 'pointer' : 'default',
         color: 'inherit',

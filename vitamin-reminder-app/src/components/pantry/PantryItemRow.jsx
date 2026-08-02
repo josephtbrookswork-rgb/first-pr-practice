@@ -20,6 +20,7 @@ function PantryItemRow({ item, onSelect }) {
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 600 }}>{item.name}</div>
         <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+          {item.dosageMg ? `${item.dosageMg}mg · ` : ''}
           {item.costPerServing > 0 ? `$${item.costPerServing.toFixed(2)}/serving` : 'Cost not set'}
         </div>
       </div>

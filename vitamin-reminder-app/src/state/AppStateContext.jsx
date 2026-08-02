@@ -62,7 +62,7 @@ export function AppStateProvider({ children }) {
     const today = getTodayDateString()
     setCheckIn({ date: today, sleep, stress, activity })
     setHistory((previous) => {
-      const entry = previous[today] ?? { date: today, checkIn: null, takenItems: [], totalItems: 0 }
+      const entry = previous[today] ?? { date: today, checkIn: null, takenItems: [], skippedItems: [], totalItems: 0 }
       return { ...previous, [today]: { ...entry, checkIn: { sleep, stress, activity } } }
     })
   }, [])
@@ -72,7 +72,7 @@ export function AppStateProvider({ children }) {
   const addScheduleItem = useCallback(({ name, phase, anchor, dosageMg }) => {
     setScheduleItems((previous) => [
       ...previous,
-      { id: createId(), name, phase, anchor: anchor ?? null, dosageMg: dosageMg ?? null, lastTakenDate: null },
+      { id: createId(), name, phase, anchor: anchor ?? null, dosageMg: dosageMg ?? null, lastTakenDate: null, skippedDate: null },
     ])
   }, [])
 
@@ -96,31 +96,69 @@ export function AppStateProvider({ children }) {
       const nowTaken = item.lastTakenDate !== today
 
       setHistory((previousHistory) => {
-        const entry = previousHistory[today] ?? { date: today, checkIn: null, takenItems: [], totalItems: 0 }
+        const entry = previousHistory[today] ?? { date: today, checkIn: null, takenItems: [], skippedItems: [], totalItems: 0 }
         const takenItems = nowTaken
           ? [...entry.takenItems.filter((taken) => taken.id !== id), { id, name: item.name, phase: item.phase }]
           : entry.takenItems.filter((taken) => taken.id !== id)
-        return { ...previousHistory, [today]: { ...entry, takenItems, totalItems: previous.length } }
+        const skippedItems = (entry.skippedItems ?? []).filter((skipped) => skipped.id !== id)
+        return { ...previousHistory, [today]: { ...entry, takenItems, skippedItems, totalItems: previous.length } }
       })
 
       return previous.map((candidate) =>
-        candidate.id === id ? { ...candidate, lastTakenDate: nowTaken ? today : null } : candidate,
+        candidate.id === id
+          ? { ...candidate, lastTakenDate: nowTaken ? today : null, skippedDate: nowTaken ? null : candidate.skippedDate }
+          : candidate,
       )
     })
   }, [])
 
-  const addPantryItem = useCallback(({ name, costPerServing, totalServings, usagePerDay }) => {
+  const toggleScheduleItemSkipped = useCallback((id) => {
+    const today = getTodayDateString()
+    setScheduleItems((previous) => {
+      const item = previous.find((candidate) => candidate.id === id)
+      if (!item) return previous
+      const nowSkipped = item.skippedDate !== today
+
+      setHistory((previousHistory) => {
+        const entry = previousHistory[today] ?? { date: today, checkIn: null, takenItems: [], skippedItems: [], totalItems: 0 }
+        const skippedItems = nowSkipped
+          ? [...(entry.skippedItems ?? []).filter((skipped) => skipped.id !== id), { id, name: item.name, phase: item.phase }]
+          : (entry.skippedItems ?? []).filter((skipped) => skipped.id !== id)
+        const takenItems = nowSkipped ? entry.takenItems.filter((taken) => taken.id !== id) : entry.takenItems
+        return { ...previousHistory, [today]: { ...entry, takenItems, skippedItems, totalItems: previous.length } }
+      })
+
+      return previous.map((candidate) =>
+        candidate.id === id
+          ? { ...candidate, skippedDate: nowSkipped ? today : null, lastTakenDate: nowSkipped ? null : candidate.lastTakenDate }
+          : candidate,
+      )
+    })
+  }, [])
+
+  const addPantryItem = useCallback(({ name, dosageMg, costPerServing, totalServings, usagePerDay }) => {
     setPantryItems((previous) => [
       ...previous,
       {
         id: createId(),
         name,
+        dosageMg: dosageMg ?? null,
         costPerServing,
         totalServings,
         servingsLeft: totalServings,
         usagePerDay: usagePerDay ?? 1,
       },
     ])
+  }, [])
+
+  const updatePantryItem = useCallback((id, { name, dosageMg, costPerServing, totalServings, servingsLeft }) => {
+    setPantryItems((previous) =>
+      previous.map((item) =>
+        item.id === id
+          ? { ...item, name, dosageMg: dosageMg ?? null, costPerServing, totalServings, servingsLeft }
+          : item,
+      ),
+    )
   }, [])
 
   const removePantryItem = useCallback((id) => {
@@ -164,6 +202,31 @@ export function AppStateProvider({ children }) {
       previous.map((list) =>
         list.id === checklistId ? { ...list, items: [...list.items, { id: createId(), text, checked: false }] } : list,
       ),
+    )
+  }, [])
+
+  const moveChecklist = useCallback((id, direction) => {
+    setCustomChecklists((previous) => {
+      const index = previous.findIndex((list) => list.id === id)
+      const targetIndex = index + direction
+      if (index === -1 || targetIndex < 0 || targetIndex >= previous.length) return previous
+      const next = [...previous]
+      ;[next[index], next[targetIndex]] = [next[targetIndex], next[index]]
+      return next
+    })
+  }, [])
+
+  const moveChecklistItem = useCallback((checklistId, itemId, direction) => {
+    setCustomChecklists((previous) =>
+      previous.map((list) => {
+        if (list.id !== checklistId) return list
+        const index = list.items.findIndex((item) => item.id === itemId)
+        const targetIndex = index + direction
+        if (index === -1 || targetIndex < 0 || targetIndex >= list.items.length) return list
+        const items = [...list.items]
+        ;[items[index], items[targetIndex]] = [items[targetIndex], items[index]]
+        return { ...list, items }
+      }),
     )
   }, [])
 
@@ -248,9 +311,11 @@ export function AppStateProvider({ children }) {
       updateScheduleItem,
       removeScheduleItem,
       toggleScheduleItemTaken,
+      toggleScheduleItemSkipped,
       takenTodayCount,
       pantryItems,
       addPantryItem,
+      updatePantryItem,
       removePantryItem,
       phases: PHASES,
       phaseLabels: PHASE_LABELS,
@@ -267,6 +332,8 @@ export function AppStateProvider({ children }) {
       addChecklist,
       addChecklistItem,
       toggleChecklistItem,
+      moveChecklist,
+      moveChecklistItem,
     }),
     [
       profile,
@@ -281,9 +348,11 @@ export function AppStateProvider({ children }) {
       updateScheduleItem,
       removeScheduleItem,
       toggleScheduleItemTaken,
+      toggleScheduleItemSkipped,
       takenTodayCount,
       pantryItems,
       addPantryItem,
+      updatePantryItem,
       removePantryItem,
       sessionQuote,
       history,
@@ -297,6 +366,8 @@ export function AppStateProvider({ children }) {
       addChecklist,
       addChecklistItem,
       toggleChecklistItem,
+      moveChecklist,
+      moveChecklistItem,
     ],
   )
 

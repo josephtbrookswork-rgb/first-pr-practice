@@ -4,11 +4,15 @@ import { PHASES } from '../../utils/phaseMeta'
 import Button from '../ui/Button'
 import PhaseCard from './PhaseCard'
 import AddItemSheet from './AddItemSheet'
+import AddToCabinetPrompt from './AddToCabinetPrompt'
+import AddPantrySheet from '../pantry/AddPantrySheet'
 
 function ScheduleScreen() {
-  const { scheduleItems, addScheduleItem, updateScheduleItem, removeScheduleItem } = useAppState()
+  const { scheduleItems, addScheduleItem, updateScheduleItem, removeScheduleItem, addPantryItem } = useAppState()
   const [addPhase, setAddPhase] = useState(null)
   const [editingItem, setEditingItem] = useState(null)
+  const [cabinetPrompt, setCabinetPrompt] = useState(null)
+  const [cabinetPrefill, setCabinetPrefill] = useState(null)
 
   const itemsByPhase = (phaseId) => scheduleItems.filter((item) => item.phase === phaseId)
 
@@ -22,6 +26,7 @@ function ScheduleScreen() {
       updateScheduleItem(editingItem.id, payload)
     } else {
       addScheduleItem(payload)
+      setCabinetPrompt({ name: payload.name, dosageMg: payload.dosageMg })
     }
   }
 
@@ -68,6 +73,26 @@ function ScheduleScreen() {
         item={editingItem}
         onClose={handleCloseSheet}
         onSubmit={handleSubmit}
+      />
+
+      <AddToCabinetPrompt
+        open={cabinetPrompt !== null}
+        itemName={cabinetPrompt?.name}
+        onClose={() => setCabinetPrompt(null)}
+        onConfirm={() => {
+          setCabinetPrefill(cabinetPrompt)
+          setCabinetPrompt(null)
+        }}
+      />
+
+      <AddPantrySheet
+        open={cabinetPrefill !== null}
+        prefill={cabinetPrefill}
+        onClose={() => setCabinetPrefill(null)}
+        onSubmit={(payload) => {
+          addPantryItem(payload)
+          setCabinetPrefill(null)
+        }}
       />
     </>
   )

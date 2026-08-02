@@ -7,9 +7,10 @@ import ItemDetailScreen from './ItemDetailScreen'
 import Button from '../ui/Button'
 
 function PantryScreen() {
-  const { pantryItems, addPantryItem, removePantryItem } = useAppState()
+  const { pantryItems, addPantryItem, updatePantryItem, removePantryItem } = useAppState()
   const [addOpen, setAddOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
+  const [editingItem, setEditingItem] = useState(null)
 
   const selectedItem = pantryItems.find((item) => item.id === selectedId) ?? null
 
@@ -19,9 +20,19 @@ function PantryScreen() {
         <ItemDetailScreen
           item={selectedItem}
           onBack={() => setSelectedId(null)}
+          onEdit={() => setEditingItem(selectedItem)}
           onRemove={(id) => {
             removePantryItem(id)
             setSelectedId(null)
+          }}
+        />
+        <AddPantrySheet
+          open={editingItem !== null}
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSubmit={(payload) => {
+            updatePantryItem(editingItem.id, payload)
+            setEditingItem(null)
           }}
         />
       </div>
