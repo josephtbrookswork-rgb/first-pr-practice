@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react'
-import { Check, Clock, Sun as SunIcon, MapPinOff } from 'lucide-react'
+import { Check, Circle, Sun as SunIcon, MapPinOff } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import { formatFriendlyDate, getGreeting, getTodayDateString } from '../../utils/date'
 import { getMockUvIndex, getUvRiskLabel } from '../../utils/uv'
 import { describeCheckIn } from '../../utils/checkin'
-import { getPhaseMeta } from '../../utils/phaseMeta'
+import { getPhaseMeta, PHASES } from '../../utils/phaseMeta'
 import RowCard from '../ui/RowCard'
 import Tag from '../ui/Tag'
 import StatCard from '../home/StatCard'
 import CheckInSheet from './CheckInSheet'
 
-function HomeDashboard({ onNavigateToSchedule }) {
+function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateToProfile }) {
   const {
     profile,
     checkIn,
@@ -19,7 +19,6 @@ function HomeDashboard({ onNavigateToSchedule }) {
     scheduleItems,
     toggleScheduleItemTaken,
     takenTodayCount,
-    nextAnchor,
     sessionQuote,
   } = useAppState()
   const [checkInOpen, setCheckInOpen] = useState(false)
@@ -34,6 +33,15 @@ function HomeDashboard({ onNavigateToSchedule }) {
     return [...scheduleItems].sort((a, b) => order[a.phase] - order[b.phase])
   }, [scheduleItems])
 
+  const routineStatus = useMemo(() => {
+    const today = getTodayDateString()
+    return PHASES.map((phase) => {
+      const items = scheduleItems.filter((item) => item.phase === phase.id)
+      const taken = items.filter((item) => item.lastTakenDate === today).length
+      return { ...phase, total: items.length, taken }
+    })
+  }, [scheduleItems])
+
   const initial = profile?.name?.trim()?.[0]?.toUpperCase() ?? '?'
 
   return (
@@ -45,9 +53,11 @@ function HomeDashboard({ onNavigateToSchedule }) {
           </h1>
           <span style={{ fontSize: 12, color: 'var(--color-accent-2-text)' }}>{formatFriendlyDate(now)}</span>
         </div>
-        <div
+        <button
+          type="button"
           className="avatar"
-          aria-hidden="true"
+          aria-label="Open profile"
+          onClick={onNavigateToProfile}
           style={{
             width: 44,
             height: 44,
@@ -60,10 +70,14 @@ function HomeDashboard({ onNavigateToSchedule }) {
             fontWeight: 700,
             fontSize: 18,
             flex: 'none',
+            border: 'none',
+            padding: 0,
+            font: 'inherit',
+            cursor: 'pointer',
           }}
         >
-          {initial}
-        </div>
+          <span aria-hidden="true">{initial}</span>
+        </button>
       </div>
 
       {checkedInToday ? (
@@ -101,7 +115,12 @@ function HomeDashboard({ onNavigateToSchedule }) {
       )}
 
       <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-        <StatCard value={`${takenTodayCount}/${scheduleItems.length}`} label="taken today" />
+        <StatCard
+          value={`${takenTodayCount}/${scheduleItems.length}`}
+          label="taken today"
+          onClick={onNavigateToCalendar}
+          ariaLabel={`${takenTodayCount} of ${scheduleItems.length} taken today — view calendar`}
+        />
         {profile?.locationGranted ? (
           <StatCard value={`UV ${uv}`} label={`SolarSync · ${getUvRiskLabel(uv)}`} valueColor="var(--color-accent-700)" />
         ) : (
@@ -147,6 +166,9 @@ function HomeDashboard({ onNavigateToSchedule }) {
                     </div>
                     <div style={{ flex: 1, fontSize: 14 }}>
                       {item.name}
+                      {item.dosageMg ? (
+                        <span style={{ color: 'var(--color-text-muted)', fontSize: 12 }}> · {item.dosageMg}mg</span>
+                      ) : null}
                       <span className="sr-only"> — {phase.label}{item.anchor ? `, tied to ${item.anchor}` : ''}</span>
                     </div>
                     {isTaken ? (
@@ -173,15 +195,22 @@ function HomeDashboard({ onNavigateToSchedule }) {
                         <Check size={20} strokeWidth={3} aria-hidden="true" />
                       </button>
                     ) : (
-                      <Tag
-                        as="button"
-                        variant="outline"
-                        aria-pressed="false"
-                        aria-label={`Mark ${item.name} as taken`}
-                        onClick={() => toggleScheduleItemTaken(item.id)}
-                      >
-                        Take now
-                      </Tag>
+                      <>
+                        <Circle
+                          size={16}
+                          aria-hidden="true"
+                          style={{ color: 'var(--color-text-muted)', flex: 'none' }}
+                        />
+                        <Tag
+                          as="button"
+                          variant="outline"
+                          aria-pressed="false"
+                          aria-label={`Mark ${item.name} as taken`}
+                          onClick={() => toggleScheduleItemTaken(item.id)}
+                        >
+                          Take now
+                        </Tag>
+                      </>
                     )}
                   </div>
                 </li>
@@ -191,21 +220,58 @@ function HomeDashboard({ onNavigateToSchedule }) {
         )}
       </div>
 
-      <RowCard className="card-sketch" style={{ padding: 'var(--space-4)' }}>
-        <div
-          className="iconwrap"
-          aria-hidden="true"
-          style={{ width: 46, height: 46, background: 'var(--color-neutral-200)', color: 'var(--color-neutral-700)' }}
-        >
-          <Clock size={22} aria-hidden="true" />
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>Next anchor</div>
-          <div style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-            {nextAnchor ? `${nextAnchor.phaseLabel} · ${nextAnchor.count} to go` : "You're all caught up"}
-          </div>
-        </div>
-      </RowCard>
+      <div className="card card-sketch elev-sm" style={{ background: 'var(--color-neutral-100)', padding: 'var(--space-4)' }}>
+        <div className="card-kicker">Daily routine</div>
+        <ul style={{ listStyle: 'none', margin: '2px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <li>
+            <RowCard
+              style={{ padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
+              onClick={checkedInToday ? undefined : () => setCheckInOpen(true)}
+            >
+              <span
+                className="iconwrap"
+                aria-hidden="true"
+                style={{
+                  width: 28,
+                  height: 28,
+                  background: checkedInToday ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
+                  color: checkedInToday ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
+                }}
+              >
+                {checkedInToday ? <Check size={14} aria-hidden="true" /> : <Circle size={14} aria-hidden="true" />}
+              </span>
+              <span style={{ flex: 1, fontSize: 13, textAlign: 'left' }}>Morning check-in</span>
+              <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{checkedInToday ? 'Done' : 'Not yet'}</span>
+            </RowCard>
+          </li>
+          {routineStatus.map((phase) => {
+            const done = phase.total > 0 && phase.taken === phase.total
+            const PhaseIcon = phase.Icon
+            return (
+              <li key={phase.id}>
+                <RowCard style={{ padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}>
+                  <span
+                    className="iconwrap"
+                    aria-hidden="true"
+                    style={{
+                      width: 28,
+                      height: 28,
+                      background: done ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
+                      color: done ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
+                    }}
+                  >
+                    {done ? <Check size={14} aria-hidden="true" /> : <PhaseIcon size={14} aria-hidden="true" />}
+                  </span>
+                  <span style={{ flex: 1, fontSize: 13, textAlign: 'left' }}>{phase.label} stack</span>
+                  <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                    {phase.total === 0 ? 'Nothing scheduled' : `${phase.taken}/${phase.total} taken`}
+                  </span>
+                </RowCard>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
 
       <p
         style={{

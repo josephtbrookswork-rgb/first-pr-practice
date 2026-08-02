@@ -32,7 +32,13 @@ function MainApp() {
         }}
       >
         <div key={activeTab} className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', flex: 1 }}>
-          {activeTab === 'home' && <HomeDashboard onNavigateToSchedule={() => setActiveTab('schedule')} />}
+          {activeTab === 'home' && (
+            <HomeDashboard
+              onNavigateToSchedule={() => setActiveTab('schedule')}
+              onNavigateToCalendar={() => setActiveTab('calendar')}
+              onNavigateToProfile={() => setActiveTab('profile')}
+            />
+          )}
           {activeTab === 'schedule' && <ScheduleScreen />}
           {activeTab === 'calendar' && <CalendarScreen />}
           {activeTab === 'pantry' && <PantryScreen />}

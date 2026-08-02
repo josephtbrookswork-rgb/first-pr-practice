@@ -1,21 +1,24 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Sheet from '../ui/Sheet'
 import Button from '../ui/Button'
 import Field from '../ui/Field'
 import { ANCHOR_OPTIONS, getPhaseMeta } from '../../utils/phaseMeta'
 
-function AddItemSheet({ open, onClose, phase, onSubmit }) {
+function AddItemSheet({ open, onClose, phase, item, onSubmit }) {
   const [name, setName] = useState('')
+  const [dosageMg, setDosageMg] = useState('')
   const [anchor, setAnchor] = useState(null)
   const [error, setError] = useState('')
   const phaseMeta = phase ? getPhaseMeta(phase) : null
+  const isEditing = Boolean(item)
 
-  function handleClose() {
-    setName('')
-    setAnchor(null)
+  useEffect(() => {
+    if (!open) return
+    setName(item?.name ?? '')
+    setDosageMg(item?.dosageMg != null ? String(item.dosageMg) : '')
+    setAnchor(item?.anchor ?? null)
     setError('')
-    onClose()
-  }
+  }, [open, item])
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -23,12 +26,22 @@ function AddItemSheet({ open, onClose, phase, onSubmit }) {
       setError('Give your supplement a name.')
       return
     }
-    onSubmit({ name: name.trim(), phase, anchor })
-    handleClose()
+    const parsedDosage = dosageMg.trim() ? Number(dosageMg) : null
+    onSubmit({
+      name: name.trim(),
+      phase,
+      anchor,
+      dosageMg: parsedDosage != null && Number.isFinite(parsedDosage) && parsedDosage > 0 ? parsedDosage : null,
+    })
+    onClose()
   }
 
   return (
-    <Sheet open={open} onClose={handleClose} title={phaseMeta ? `Add to ${phaseMeta.label}` : 'Add supplement'}>
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={isEditing ? `Edit ${item.name}` : phaseMeta ? `Add to ${phaseMeta.label}` : 'Add supplement'}
+    >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
         <Field label="Name your supplement" error={error}>
           {(fieldProps) => (
@@ -40,6 +53,21 @@ function AddItemSheet({ open, onClose, phase, onSubmit }) {
               value={name}
               onChange={(event) => setName(event.target.value)}
               autoFocus
+            />
+          )}
+        </Field>
+        <Field label="Dosage (mg)" hint="Optional">
+          {(fieldProps) => (
+            <input
+              {...fieldProps}
+              className="input"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="any"
+              placeholder="e.g. 1000"
+              value={dosageMg}
+              onChange={(event) => setDosageMg(event.target.value)}
             />
           )}
         </Field>
@@ -63,7 +91,7 @@ function AddItemSheet({ open, onClose, phase, onSubmit }) {
           </div>
         </fieldset>
         <Button block type="submit">
-          Save to {phaseMeta?.label ?? 'schedule'}
+          {isEditing ? 'Save changes' : `Save to ${phaseMeta?.label ?? 'schedule'}`}
         </Button>
       </form>
     </Sheet>

@@ -7,9 +7,9 @@ import ReminderSettings from './ReminderSettings'
 
 const THEME_OPTIONS = [
   { id: 'default', label: 'Default', swatch: '#c67139' },
-  { id: 'pink', label: 'Pink', swatch: '#e35998' },
-  { id: 'blue', label: 'Blue', swatch: '#3d82d6' },
-  { id: 'purple', label: 'Purple', swatch: '#7f57d6' },
+  { id: 'pink', label: 'Pink', swatch: '#c06d95' },
+  { id: 'blue', label: 'Blue', swatch: '#6690d2' },
+  { id: 'purple', label: 'Purple', swatch: '#9270cb' },
 ]
 
 function ProfileScreen() {

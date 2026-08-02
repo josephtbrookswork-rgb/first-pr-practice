@@ -14,13 +14,6 @@ const DEFAULT_REMINDERS = {
   dusk: { enabled: true, time: '18:00' },
 }
 
-function getCurrentPhaseIndex(date = new Date()) {
-  const hour = date.getHours()
-  if (hour < 12) return 0
-  if (hour < 17) return 1
-  return 2
-}
-
 function getNotificationPermission() {
   return typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
 }
@@ -74,11 +67,19 @@ export function AppStateProvider({ children }) {
 
   const checkedInToday = checkIn?.date === getTodayDateString()
 
-  const addScheduleItem = useCallback(({ name, phase, anchor }) => {
+  const addScheduleItem = useCallback(({ name, phase, anchor, dosageMg }) => {
     setScheduleItems((previous) => [
       ...previous,
-      { id: createId(), name, phase, anchor: anchor ?? null, lastTakenDate: null },
+      { id: createId(), name, phase, anchor: anchor ?? null, dosageMg: dosageMg ?? null, lastTakenDate: null },
     ])
+  }, [])
+
+  const updateScheduleItem = useCallback((id, { name, anchor, dosageMg }) => {
+    setScheduleItems((previous) =>
+      previous.map((item) =>
+        item.id === id ? { ...item, name, anchor: anchor ?? null, dosageMg: dosageMg ?? null } : item,
+      ),
+    )
   }, [])
 
   const removeScheduleItem = useCallback((id) => {
@@ -206,21 +207,6 @@ export function AppStateProvider({ children }) {
     [scheduleItems, today],
   )
 
-  const nextAnchor = useMemo(() => {
-    if (scheduleItems.length === 0) return null
-    const currentPhaseIndex = getCurrentPhaseIndex()
-    for (let offset = 0; offset < PHASES.length; offset += 1) {
-      const phase = PHASES[(currentPhaseIndex + offset) % PHASES.length]
-      const pending = scheduleItems.filter(
-        (item) => item.phase === phase && item.lastTakenDate !== today,
-      )
-      if (pending.length > 0) {
-        return { phase, phaseLabel: PHASE_LABELS[phase], count: pending.length }
-      }
-    }
-    return null
-  }, [scheduleItems, today])
-
   const value = useMemo(
     () => ({
       profile,
@@ -232,10 +218,10 @@ export function AppStateProvider({ children }) {
       submitCheckIn,
       scheduleItems,
       addScheduleItem,
+      updateScheduleItem,
       removeScheduleItem,
       toggleScheduleItemTaken,
       takenTodayCount,
-      nextAnchor,
       pantryItems,
       addPantryItem,
       removePantryItem,
@@ -261,10 +247,10 @@ export function AppStateProvider({ children }) {
       submitCheckIn,
       scheduleItems,
       addScheduleItem,
+      updateScheduleItem,
       removeScheduleItem,
       toggleScheduleItemTaken,
       takenTodayCount,
-      nextAnchor,
       pantryItems,
       addPantryItem,
       removePantryItem,

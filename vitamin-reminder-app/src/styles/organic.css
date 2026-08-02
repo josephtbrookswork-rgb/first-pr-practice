@@ -80,30 +80,34 @@
 }
 
 /* — theme presets — swap the accent scales + surfaces; --color-neutral-*,
-   --color-danger* and spacing/radius tokens stay shared across all themes. */
+   --color-danger* and spacing/radius tokens stay shared across all themes.
+   The light-to-mid steps (100-500) are deliberately desaturated/pastel;
+   the working 700/800 shades stay dark enough to clear WCAG AA (4.5:1) for
+   white button text and for body text against --color-bg — verified with
+   a relative-luminance contrast check, not just eyeballed. */
 :root[data-theme="pink"] {
-  --color-bg: #fdf1f6;
-  --color-surface: #fbe1ec;
-  --color-text: #241620;
-  --color-divider: color-mix(in srgb, #241620 16%, transparent);
+  --color-bg: #fdf2f6;
+  --color-surface: #fbe6ee;
+  --color-text: #2a1720;
+  --color-divider: color-mix(in srgb, #2a1720 16%, transparent);
 
-  --color-accent-100: #ffeef5;
-  --color-accent-200: #ffd6e8;
-  --color-accent-300: #ffb0d3;
-  --color-accent-400: #f57fb3;
-  --color-accent-500: #e35998;
-  --color-accent-600: #c93f7e;
-  --color-accent-700: #a52f65;
-  --color-accent-800: #7a2249;
-  --color-accent-900: #4f1730;
+  --color-accent-100: #fff0f5;
+  --color-accent-200: #fbdce8;
+  --color-accent-300: #f3c0d6;
+  --color-accent-400: #d795b3;
+  --color-accent-500: #c06d95;
+  --color-accent-600: #a3577c;
+  --color-accent-700: #8f4767;
+  --color-accent-800: #6b3550;
+  --color-accent-900: #452236;
   --color-accent: var(--color-accent-500);
 
   --color-accent-2-100: #fbeafc;
-  --color-accent-2-200: #f3d0f5;
-  --color-accent-2-300: #e6aeea;
-  --color-accent-2-400: #cf85d6;
-  --color-accent-2-500: #b164ba;
-  --color-accent-2-600: #954ba0;
+  --color-accent-2-200: #f0d4f2;
+  --color-accent-2-300: #ddb0e2;
+  --color-accent-2-400: #c087c9;
+  --color-accent-2-500: #a568ab;
+  --color-accent-2-600: #8a5390;
   --color-accent-2-700: #743a7e;
   --color-accent-2-800: #522a58;
   --color-accent-2-900: #351b3a;
@@ -114,28 +118,28 @@
 }
 
 :root[data-theme="blue"] {
-  --color-bg: #eef4fb;
-  --color-surface: #dde9f7;
-  --color-text: #121c26;
-  --color-divider: color-mix(in srgb, #121c26 16%, transparent);
+  --color-bg: #eef3fb;
+  --color-surface: #dfe9f7;
+  --color-text: #16202c;
+  --color-divider: color-mix(in srgb, #16202c 16%, transparent);
 
-  --color-accent-100: #e8f1fd;
-  --color-accent-200: #c9e0fa;
-  --color-accent-300: #9cc7f5;
-  --color-accent-400: #63a3ec;
-  --color-accent-500: #3d82d6;
-  --color-accent-600: #2c65b0;
-  --color-accent-700: #204c87;
-  --color-accent-800: #17365f;
-  --color-accent-900: #0f2340;
+  --color-accent-100: #eaf2fd;
+  --color-accent-200: #d3e3fa;
+  --color-accent-300: #aecdf2;
+  --color-accent-400: #82ace3;
+  --color-accent-500: #6690d2;
+  --color-accent-600: #4d72b0;
+  --color-accent-700: #3a5789;
+  --color-accent-800: #294061;
+  --color-accent-900: #1b2b42;
   --color-accent: var(--color-accent-500);
 
-  --color-accent-2-100: #e6f7f5;
-  --color-accent-2-200: #c3ece5;
-  --color-accent-2-300: #96dbd0;
-  --color-accent-2-400: #62c0b1;
-  --color-accent-2-500: #3fa190;
-  --color-accent-2-600: #2d8072;
+  --color-accent-2-100: #e9f6f4;
+  --color-accent-2-200: #c9ece5;
+  --color-accent-2-300: #9ed8cc;
+  --color-accent-2-400: #6dbdac;
+  --color-accent-2-500: #4a9f8d;
+  --color-accent-2-600: #37806f;
   --color-accent-2-700: #21615a;
   --color-accent-2-800: #17453f;
   --color-accent-2-900: #0f2d29;
@@ -146,28 +150,28 @@
 }
 
 :root[data-theme="purple"] {
-  --color-bg: #f5f0fb;
-  --color-surface: #e6ddf5;
-  --color-text: #17102a;
-  --color-divider: color-mix(in srgb, #17102a 16%, transparent);
+  --color-bg: #f5f1fb;
+  --color-surface: #e9e0f7;
+  --color-text: #1c1430;
+  --color-divider: color-mix(in srgb, #1c1430 16%, transparent);
 
-  --color-accent-100: #f2ecfd;
-  --color-accent-200: #ddccfa;
-  --color-accent-300: #c1a6f5;
-  --color-accent-400: #9e79ea;
-  --color-accent-500: #7f57d6;
-  --color-accent-600: #6440b3;
-  --color-accent-700: #4c2f8a;
-  --color-accent-800: #362163;
-  --color-accent-900: #221541;
+  --color-accent-100: #f3edfd;
+  --color-accent-200: #e2d4fa;
+  --color-accent-300: #c9aef0;
+  --color-accent-400: #ab85e0;
+  --color-accent-500: #9270cb;
+  --color-accent-600: #7657a8;
+  --color-accent-700: #5c4380;
+  --color-accent-800: #423059;
+  --color-accent-900: #2b1f3b;
   --color-accent: var(--color-accent-500);
 
-  --color-accent-2-100: #eeecfd;
-  --color-accent-2-200: #d5cffa;
-  --color-accent-2-300: #b3a8f2;
-  --color-accent-2-400: #8c7ce3;
-  --color-accent-2-500: #6c5ccb;
-  --color-accent-2-600: #5346a8;
+  --color-accent-2-100: #efecfd;
+  --color-accent-2-200: #d9d0fa;
+  --color-accent-2-300: #baa8f0;
+  --color-accent-2-400: #9880e0;
+  --color-accent-2-500: #7d63c4;
+  --color-accent-2-600: #6350a3;
   --color-accent-2-700: #3f3580;
   --color-accent-2-800: #2c255c;
   --color-accent-2-900: #1c173c;
@@ -395,7 +399,9 @@ button.tag-btn:focus-visible { outline: 2px solid var(--color-accent-700); outli
 /* — floating nav (replaces a full-width bottom tab bar with separate
    floating icon buttons, hand-drawn-bordered like .card-sketch) — */
 .floating-nav {
-  position: absolute; left: 0; right: 0; bottom: 0;
+  position: fixed; left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  width: 100%; max-width: 480px;
   display: flex; justify-content: center; align-items: flex-end; gap: var(--space-3);
   padding: 0 var(--space-4) max(var(--space-4), env(safe-area-inset-bottom));
   pointer-events: none;
@@ -513,7 +519,14 @@ button.card-sketch:active { box-shadow: 1px 2px 0 color-mix(in srgb, var(--color
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.page-transition { animation: page-fade-in 0.28s ease both; }
+/* fill-mode intentionally omits "backwards"/"both": a persisted transform
+   (even the identity translateY(0) left by "forwards") establishes a new
+   containing block for any position:fixed descendant — e.g. a Sheet's
+   backdrop rendered inside this wrapper — shrinking it to this box instead
+   of the full viewport. Plain "none" reverts cleanly once the 0.28s
+   animation ends, since the end-state values already match the resting
+   (unanimated) styles. */
+.page-transition { animation: page-fade-in 0.28s ease; }
 
 @keyframes solaris-rise {
   from { opacity: 0; transform: scale(0.55) rotate(-10deg); }

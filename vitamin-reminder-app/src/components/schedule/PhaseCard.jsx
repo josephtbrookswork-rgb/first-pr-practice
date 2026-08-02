@@ -1,6 +1,6 @@
-import { Plus, X } from 'lucide-react'
+import { Plus, Pencil, X } from 'lucide-react'
 
-function PhaseCard({ phase, items, onAdd, onRemove }) {
+function PhaseCard({ phase, items, onAdd, onEdit, onRemove }) {
   const { Icon, label, iconColor, iconBg } = phase
 
   return (
@@ -41,8 +41,18 @@ function PhaseCard({ phase, items, onAdd, onRemove }) {
             >
               <span style={{ flex: 1 }}>
                 {item.name}
+                {item.dosageMg ? <span style={{ color: 'var(--color-text-muted)' }}> · {item.dosageMg}mg</span> : null}
                 {item.anchor && <span style={{ color: 'var(--color-text-muted)' }}> · {item.anchor}</span>}
               </span>
+              <button
+                type="button"
+                className="btn btn-icon btn-ghost"
+                style={{ width: 40, height: 40, minHeight: 40 }}
+                aria-label={`Edit ${item.name}`}
+                onClick={() => onEdit(item)}
+              >
+                <Pencil size={14} aria-hidden="true" />
+              </button>
               <button
                 type="button"
                 className="btn btn-icon btn-ghost"

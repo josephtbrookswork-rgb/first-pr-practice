@@ -6,10 +6,24 @@ import PhaseCard from './PhaseCard'
 import AddItemSheet from './AddItemSheet'
 
 function ScheduleScreen() {
-  const { scheduleItems, addScheduleItem, removeScheduleItem } = useAppState()
+  const { scheduleItems, addScheduleItem, updateScheduleItem, removeScheduleItem } = useAppState()
   const [addPhase, setAddPhase] = useState(null)
+  const [editingItem, setEditingItem] = useState(null)
 
   const itemsByPhase = (phaseId) => scheduleItems.filter((item) => item.phase === phaseId)
+
+  function handleCloseSheet() {
+    setAddPhase(null)
+    setEditingItem(null)
+  }
+
+  function handleSubmit(payload) {
+    if (editingItem) {
+      updateScheduleItem(editingItem.id, payload)
+    } else {
+      addScheduleItem(payload)
+    }
+  }
 
   return (
     <>
@@ -42,16 +56,18 @@ function ScheduleScreen() {
             phase={phase}
             items={itemsByPhase(phase.id)}
             onAdd={() => setAddPhase(phase.id)}
+            onEdit={(item) => setEditingItem(item)}
             onRemove={removeScheduleItem}
           />
         ))
       )}
 
       <AddItemSheet
-        open={addPhase !== null}
-        phase={addPhase}
-        onClose={() => setAddPhase(null)}
-        onSubmit={addScheduleItem}
+        open={addPhase !== null || editingItem !== null}
+        phase={editingItem?.phase ?? addPhase}
+        item={editingItem}
+        onClose={handleCloseSheet}
+        onSubmit={handleSubmit}
       />
     </>
   )
