@@ -29,6 +29,7 @@ export function AppStateProvider({ children }) {
   const [reminders, setReminders] = useState(() => loadJSON('reminders', DEFAULT_REMINDERS))
   const [notificationPermission, setNotificationPermission] = useState(getNotificationPermission)
   const [theme, setTheme] = useState(() => loadJSON('theme', 'default'))
+  const [customChecklists, setCustomChecklists] = useState(() => loadJSON('customChecklists', []))
 
   useEffect(() => saveJSON('theme', theme), [theme])
   useEffect(() => {
@@ -42,6 +43,7 @@ export function AppStateProvider({ children }) {
   useEffect(() => saveJSON('history', history), [history])
   useEffect(() => saveJSON('notificationsEnabled', notificationsEnabled), [notificationsEnabled])
   useEffect(() => saveJSON('reminders', reminders), [reminders])
+  useEffect(() => saveJSON('customChecklists', customChecklists), [customChecklists])
 
   const updateProfile = useCallback((partial) => {
     setProfile((previous) => ({ ...(previous ?? {}), ...partial }))
@@ -153,6 +155,31 @@ export function AppStateProvider({ children }) {
     setReminders((previous) => ({ ...previous, [phase]: { ...previous[phase], ...partial } }))
   }, [])
 
+  const addChecklist = useCallback((title) => {
+    setCustomChecklists((previous) => [...previous, { id: createId(), title, items: [] }])
+  }, [])
+
+  const addChecklistItem = useCallback((checklistId, text) => {
+    setCustomChecklists((previous) =>
+      previous.map((list) =>
+        list.id === checklistId ? { ...list, items: [...list.items, { id: createId(), text, checked: false }] } : list,
+      ),
+    )
+  }, [])
+
+  const toggleChecklistItem = useCallback((checklistId, itemId) => {
+    setCustomChecklists((previous) =>
+      previous.map((list) =>
+        list.id === checklistId
+          ? {
+              ...list,
+              items: list.items.map((item) => (item.id === itemId ? { ...item, checked: !item.checked } : item)),
+            }
+          : list,
+      ),
+    )
+  }, [])
+
   const scheduleItemsRef = useRef(scheduleItems)
   useEffect(() => {
     scheduleItemsRef.current = scheduleItems
@@ -236,6 +263,10 @@ export function AppStateProvider({ children }) {
       updateReminder,
       theme,
       setTheme,
+      customChecklists,
+      addChecklist,
+      addChecklistItem,
+      toggleChecklistItem,
     }),
     [
       profile,
@@ -262,6 +293,10 @@ export function AppStateProvider({ children }) {
       reminders,
       updateReminder,
       theme,
+      customChecklists,
+      addChecklist,
+      addChecklistItem,
+      toggleChecklistItem,
     ],
   )
 

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Check, Circle, Sun as SunIcon, MapPinOff } from 'lucide-react'
+import { Check, Circle, Sun as SunIcon, MapPinOff, Plus, ChevronDown, ChevronUp, Square, CheckSquare } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import { formatFriendlyDate, getGreeting, getTodayDateString } from '../../utils/date'
 import { getMockUvIndex, getUvRiskLabel } from '../../utils/uv'
@@ -9,6 +9,8 @@ import RowCard from '../ui/RowCard'
 import Tag from '../ui/Tag'
 import StatCard from '../home/StatCard'
 import CheckInSheet from './CheckInSheet'
+import AddChecklistSheet from './AddChecklistSheet'
+import ChecklistAddItemRow from './ChecklistAddItemRow'
 
 function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateToProfile }) {
   const {
@@ -20,8 +22,23 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
     toggleScheduleItemTaken,
     takenTodayCount,
     sessionQuote,
+    customChecklists,
+    addChecklist,
+    addChecklistItem,
+    toggleChecklistItem,
   } = useAppState()
   const [checkInOpen, setCheckInOpen] = useState(false)
+  const [addChecklistOpen, setAddChecklistOpen] = useState(false)
+  const [expandedChecklists, setExpandedChecklists] = useState(() => new Set())
+
+  function toggleExpanded(id) {
+    setExpandedChecklists((previous) => {
+      const next = new Set(previous)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
   const now = useMemo(() => new Date(), [])
   const uv = profile?.locationGranted
@@ -221,7 +238,17 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
       </div>
 
       <div className="card card-sketch elev-sm" style={{ background: 'var(--color-neutral-100)', padding: 'var(--space-4)' }}>
-        <div className="card-kicker">Daily routine</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="card-kicker">Daily routine</div>
+          <button
+            type="button"
+            className="btn btn-icon btn-secondary"
+            aria-label="Add checklist"
+            onClick={() => setAddChecklistOpen(true)}
+          >
+            <Plus size={16} aria-hidden="true" />
+          </button>
+        </div>
         <ul style={{ listStyle: 'none', margin: '2px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <li>
             <RowCard
@@ -270,6 +297,85 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
               </li>
             )
           })}
+          {customChecklists.map((list) => {
+            const isExpanded = expandedChecklists.has(list.id)
+            const doneCount = list.items.filter((item) => item.checked).length
+            const allDone = list.items.length > 0 && doneCount === list.items.length
+            return (
+              <li key={list.id}>
+                <RowCard
+                  style={{ padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
+                  onClick={() => toggleExpanded(list.id)}
+                  aria-expanded={isExpanded}
+                >
+                  <span
+                    className="iconwrap"
+                    aria-hidden="true"
+                    style={{
+                      width: 28,
+                      height: 28,
+                      background: allDone ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
+                      color: allDone ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
+                    }}
+                  >
+                    {allDone ? <Check size={14} aria-hidden="true" /> : <CheckSquare size={14} aria-hidden="true" />}
+                  </span>
+                  <span style={{ flex: 1, fontSize: 13, textAlign: 'left' }}>{list.title}</span>
+                  <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                    {list.items.length === 0 ? 'Empty' : `${doneCount}/${list.items.length}`}
+                  </span>
+                  {isExpanded ? (
+                    <ChevronUp size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                  ) : (
+                    <ChevronDown size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                  )}
+                </RowCard>
+
+                {isExpanded && (
+                  <div style={{ padding: 'var(--space-1) var(--space-3) 0', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {list.items.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        aria-pressed={item.checked}
+                        onClick={() => toggleChecklistItem(list.id, item.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          width: '100%',
+                          minHeight: 40,
+                          background: 'none',
+                          border: 'none',
+                          padding: '6px 4px',
+                          font: 'inherit',
+                          fontSize: 13,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          color: 'var(--color-text)',
+                        }}
+                      >
+                        {item.checked ? (
+                          <CheckSquare size={18} aria-hidden="true" style={{ color: 'var(--color-accent-2-700)', flex: 'none' }} />
+                        ) : (
+                          <Square size={18} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                        )}
+                        <span
+                          style={{
+                            textDecoration: item.checked ? 'line-through' : 'none',
+                            color: item.checked ? 'var(--color-text-muted)' : 'var(--color-text)',
+                          }}
+                        >
+                          {item.text}
+                        </span>
+                      </button>
+                    ))}
+                    <ChecklistAddItemRow onAdd={(text) => addChecklistItem(list.id, text)} />
+                  </div>
+                )}
+              </li>
+            )
+          })}
         </ul>
       </div>
 
@@ -292,6 +398,11 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
         onClose={() => setCheckInOpen(false)}
         initialValues={checkIn ?? undefined}
         onSubmit={submitCheckIn}
+      />
+      <AddChecklistSheet
+        open={addChecklistOpen}
+        onClose={() => setAddChecklistOpen(false)}
+        onSubmit={addChecklist}
       />
     </>
   )
