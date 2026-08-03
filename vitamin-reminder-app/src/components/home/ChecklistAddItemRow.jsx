@@ -19,7 +19,7 @@ function ChecklistAddItemRow({ onAdd }) {
         placeholder="Add item"
         value={text}
         onChange={(event) => setText(event.target.value)}
-        style={{ flex: 1, minHeight: 36, padding: '6px 12px', fontSize: 13 }}
+        style={{ flex: 1, minHeight: 36, padding: '6px 12px' }}
       />
       <button
         type="submit"

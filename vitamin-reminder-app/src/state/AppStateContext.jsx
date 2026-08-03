@@ -205,26 +205,40 @@ export function AppStateProvider({ children }) {
     )
   }, [])
 
-  const moveChecklist = useCallback((id, direction) => {
+  const reorderChecklists = useCallback((fromIndex, toIndex) => {
     setCustomChecklists((previous) => {
-      const index = previous.findIndex((list) => list.id === id)
-      const targetIndex = index + direction
-      if (index === -1 || targetIndex < 0 || targetIndex >= previous.length) return previous
+      if (
+        fromIndex === toIndex ||
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        fromIndex >= previous.length ||
+        toIndex >= previous.length
+      ) {
+        return previous
+      }
       const next = [...previous]
-      ;[next[index], next[targetIndex]] = [next[targetIndex], next[index]]
+      const [moved] = next.splice(fromIndex, 1)
+      next.splice(toIndex, 0, moved)
       return next
     })
   }, [])
 
-  const moveChecklistItem = useCallback((checklistId, itemId, direction) => {
+  const reorderChecklistItems = useCallback((checklistId, fromIndex, toIndex) => {
     setCustomChecklists((previous) =>
       previous.map((list) => {
         if (list.id !== checklistId) return list
-        const index = list.items.findIndex((item) => item.id === itemId)
-        const targetIndex = index + direction
-        if (index === -1 || targetIndex < 0 || targetIndex >= list.items.length) return list
+        if (
+          fromIndex === toIndex ||
+          fromIndex < 0 ||
+          toIndex < 0 ||
+          fromIndex >= list.items.length ||
+          toIndex >= list.items.length
+        ) {
+          return list
+        }
         const items = [...list.items]
-        ;[items[index], items[targetIndex]] = [items[targetIndex], items[index]]
+        const [moved] = items.splice(fromIndex, 1)
+        items.splice(toIndex, 0, moved)
         return { ...list, items }
       }),
     )
@@ -332,8 +346,8 @@ export function AppStateProvider({ children }) {
       addChecklist,
       addChecklistItem,
       toggleChecklistItem,
-      moveChecklist,
-      moveChecklistItem,
+      reorderChecklists,
+      reorderChecklistItems,
     }),
     [
       profile,
@@ -366,8 +380,8 @@ export function AppStateProvider({ children }) {
       addChecklist,
       addChecklistItem,
       toggleChecklistItem,
-      moveChecklist,
-      moveChecklistItem,
+      reorderChecklists,
+      reorderChecklistItems,
     ],
   )
 
