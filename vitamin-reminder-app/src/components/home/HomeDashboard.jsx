@@ -39,8 +39,9 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
     addChecklist,
     addChecklistItem,
     toggleChecklistItem,
-    reorderChecklists,
     reorderChecklistItems,
+    routineOrder,
+    reorderRoutine,
   } = useAppState()
   const [checkInOpen, setCheckInOpen] = useState(false)
   const [addChecklistOpen, setAddChecklistOpen] = useState(false)
@@ -73,6 +74,44 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
       return { ...phase, total: items.length, taken }
     })
   }, [scheduleItems])
+
+  const phaseById = useMemo(() => {
+    const map = {}
+    routineStatus.forEach((phase) => {
+      map[phase.id] = phase
+    })
+    return map
+  }, [routineStatus])
+
+  const checklistById = useMemo(() => {
+    const map = {}
+    customChecklists.forEach((list) => {
+      map[list.id] = list
+    })
+    return map
+  }, [customChecklists])
+
+  // A row is visible if it's the check-in row (always), a phase with at
+  // least one scheduled supplement, or an existing checklist. Any checklist
+  // not yet present in routineOrder (e.g. data saved before this feature
+  // existed) is appended at the end rather than dropped.
+  const visibleRoutineIds = useMemo(() => {
+    const visible = routineOrder.filter((id) => {
+      if (id === 'checkin') return true
+      if (phaseById[id]) return phaseById[id].total > 0
+      return Boolean(checklistById[id])
+    })
+    const known = new Set(visible)
+    const strayChecklists = customChecklists.filter((list) => !known.has(list.id)).map((list) => list.id)
+    return [...visible, ...strayChecklists]
+  }, [routineOrder, phaseById, checklistById, customChecklists])
+
+  function handleRoutineReorder(fromIndex, toIndex) {
+    const next = [...visibleRoutineIds]
+    const [moved] = next.splice(fromIndex, 1)
+    next.splice(toIndex, 0, moved)
+    reorderRoutine(next)
+  }
 
   const initial = profile?.name?.trim()?.[0]?.toUpperCase() ?? '?'
 
@@ -309,77 +348,35 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
             <Plus size={16} aria-hidden="true" />
           </button>
         </div>
-        <ul style={{ listStyle: 'none', margin: '2px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-          <li>
-            <RowCard
-              style={{ padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
-              onClick={checkedInToday ? undefined : () => setCheckInOpen(true)}
-            >
-              <span
-                className="iconwrap"
-                aria-hidden="true"
-                style={{
-                  width: 28,
-                  height: 28,
-                  background: checkedInToday ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
-                  color: checkedInToday ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
-                }}
-              >
-                {checkedInToday ? <Check size={14} aria-hidden="true" /> : <Circle size={14} aria-hidden="true" />}
-              </span>
-              <span style={{ flex: 1, fontSize: 13, textAlign: 'left' }}>Morning check-in</span>
-              <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{checkedInToday ? 'Done' : 'Not yet'}</span>
-            </RowCard>
-          </li>
-          {routineStatus.map((phase) => {
-            const done = phase.total > 0 && phase.taken === phase.total
-            const PhaseIcon = phase.Icon
-            return (
-              <li key={phase.id}>
-                <RowCard style={{ padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}>
-                  <span
-                    className="iconwrap"
-                    aria-hidden="true"
-                    style={{
-                      width: 28,
-                      height: 28,
-                      background: done ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
-                      color: done ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
-                    }}
-                  >
-                    {done ? <Check size={14} aria-hidden="true" /> : <PhaseIcon size={14} aria-hidden="true" />}
-                  </span>
-                  <span style={{ flex: 1, fontSize: 13, textAlign: 'left' }}>{phase.label} stack</span>
-                  <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                    {phase.total === 0 ? 'Nothing scheduled' : `${phase.taken}/${phase.total} taken`}
-                  </span>
-                </RowCard>
-              </li>
-            )
-          })}
-        </ul>
-
-        {customChecklists.length > 0 && (
-          <SortableList
-            items={customChecklists}
-            getKey={(list) => list.id}
-            onReorder={reorderChecklists}
-            renderItem={(list, listIndex, { dragHandleProps }) => {
-              const isExpanded = expandedChecklists.has(list.id)
-              const doneCount = list.items.filter((item) => item.checked).length
-              const allDone = list.items.length > 0 && doneCount === list.items.length
+        <SortableList
+          items={visibleRoutineIds}
+          getKey={(id) => id}
+          onReorder={handleRoutineReorder}
+          renderItem={(id, index, { dragHandleProps }) => {
+            if (id === 'checkin') {
               return (
-                <div>
-                  <div
-                    data-sortable-anchor
-                    className="rowcard"
-                    style={{ marginTop: 'var(--space-2)', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
-                  >
-                    <DragHandle {...dragHandleProps} aria-label={`Drag ${list.title} to reorder`} />
+                <div
+                  data-sortable-anchor
+                  className="rowcard"
+                  style={{ marginTop: 'var(--space-2)', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
+                >
+                  <DragHandle {...dragHandleProps} aria-label="Drag Morning check-in to reorder" />
+                  {checkedInToday ? (
+                    <>
+                      <span
+                        className="iconwrap"
+                        aria-hidden="true"
+                        style={{ width: 28, height: 28, background: 'var(--color-accent-2-100)', color: 'var(--color-accent-2-800)' }}
+                      >
+                        <Check size={14} aria-hidden="true" />
+                      </span>
+                      <span style={{ flex: 1, fontSize: 13 }}>Morning check-in</span>
+                      <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Done</span>
+                    </>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => toggleExpanded(list.id)}
-                      aria-expanded={isExpanded}
+                      onClick={() => setCheckInOpen(true)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -398,81 +395,156 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
                       <span
                         className="iconwrap"
                         aria-hidden="true"
-                        style={{
-                          width: 28,
-                          height: 28,
-                          background: allDone ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
-                          color: allDone ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
-                        }}
+                        style={{ width: 28, height: 28, background: 'var(--color-neutral-200)', color: 'var(--color-text-muted)' }}
                       >
-                        {allDone ? <Check size={14} aria-hidden="true" /> : <CheckSquare size={14} aria-hidden="true" />}
+                        <Circle size={14} aria-hidden="true" />
                       </span>
-                      <span style={{ flex: 1, fontSize: 13 }}>{list.title}</span>
-                      <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                        {list.items.length === 0 ? 'Empty' : `${doneCount}/${list.items.length}`}
-                      </span>
-                      {isExpanded ? (
-                        <ChevronUp size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
-                      ) : (
-                        <ChevronDown size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
-                      )}
+                      <span style={{ flex: 1, fontSize: 13 }}>Morning check-in</span>
+                      <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Not yet</span>
                     </button>
-                  </div>
-
-                  {isExpanded && (
-                    <div style={{ padding: 'var(--space-1) var(--space-3) 0' }}>
-                      <SortableList
-                        items={list.items}
-                        getKey={(item) => item.id}
-                        onReorder={(fromIndex, toIndex) => reorderChecklistItems(list.id, fromIndex, toIndex)}
-                        renderItem={(item, itemIndex, { dragHandleProps: itemDragHandleProps }) => (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <DragHandle {...itemDragHandleProps} aria-label={`Drag ${item.text} to reorder`} />
-                            <button
-                              type="button"
-                              aria-pressed={item.checked}
-                              onClick={() => toggleChecklistItem(list.id, item.id)}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 8,
-                                flex: 1,
-                                minHeight: 40,
-                                background: 'none',
-                                border: 'none',
-                                padding: '6px 4px',
-                                font: 'inherit',
-                                fontSize: 13,
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                                color: 'var(--color-text)',
-                              }}
-                            >
-                              {item.checked ? (
-                                <CheckSquare size={18} aria-hidden="true" style={{ color: 'var(--color-accent-2-700)', flex: 'none' }} />
-                              ) : (
-                                <Square size={18} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
-                              )}
-                              <span
-                                style={{
-                                  textDecoration: item.checked ? 'line-through' : 'none',
-                                  color: item.checked ? 'var(--color-text-muted)' : 'var(--color-text)',
-                                }}
-                              >
-                                {item.text}
-                              </span>
-                            </button>
-                          </div>
-                        )}
-                      />
-                      <ChecklistAddItemRow onAdd={(text) => addChecklistItem(list.id, text)} />
-                    </div>
                   )}
                 </div>
               )
-            }}
-          />
-        )}
+            }
+
+            if (phaseById[id]) {
+              const phase = phaseById[id]
+              const done = phase.taken === phase.total
+              const PhaseIcon = phase.Icon
+              return (
+                <div
+                  data-sortable-anchor
+                  className="rowcard"
+                  style={{ marginTop: 'var(--space-2)', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
+                >
+                  <DragHandle {...dragHandleProps} aria-label={`Drag ${phase.label} stack to reorder`} />
+                  <span
+                    className="iconwrap"
+                    aria-hidden="true"
+                    style={{
+                      width: 28,
+                      height: 28,
+                      background: done ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
+                      color: done ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
+                    }}
+                  >
+                    {done ? <Check size={14} aria-hidden="true" /> : <PhaseIcon size={14} aria-hidden="true" />}
+                  </span>
+                  <span style={{ flex: 1, fontSize: 13 }}>{phase.label} stack</span>
+                  <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{phase.taken}/{phase.total} taken</span>
+                </div>
+              )
+            }
+
+            const list = checklistById[id]
+            if (!list) return null
+            const isExpanded = expandedChecklists.has(list.id)
+            const doneCount = list.items.filter((item) => item.checked).length
+            const allDone = list.items.length > 0 && doneCount === list.items.length
+            return (
+              <div>
+                <div
+                  data-sortable-anchor
+                  className="rowcard"
+                  style={{ marginTop: 'var(--space-2)', padding: 'var(--space-2) var(--space-3)', background: 'var(--color-bg)' }}
+                >
+                  <DragHandle {...dragHandleProps} aria-label={`Drag ${list.title} to reorder`} />
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(list.id)}
+                    aria-expanded={isExpanded}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-3)',
+                      flex: 1,
+                      minHeight: 40,
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      font: 'inherit',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      color: 'inherit',
+                    }}
+                  >
+                    <span
+                      className="iconwrap"
+                      aria-hidden="true"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        background: allDone ? 'var(--color-accent-2-100)' : 'var(--color-neutral-200)',
+                        color: allDone ? 'var(--color-accent-2-800)' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      {allDone ? <Check size={14} aria-hidden="true" /> : <CheckSquare size={14} aria-hidden="true" />}
+                    </span>
+                    <span style={{ flex: 1, fontSize: 13 }}>{list.title}</span>
+                    <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                      {list.items.length === 0 ? 'Empty' : `${doneCount}/${list.items.length}`}
+                    </span>
+                    {isExpanded ? (
+                      <ChevronUp size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                    ) : (
+                      <ChevronDown size={16} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                    )}
+                  </button>
+                </div>
+
+                {isExpanded && (
+                  <div style={{ padding: 'var(--space-1) var(--space-3) 0' }}>
+                    <SortableList
+                      items={list.items}
+                      getKey={(item) => item.id}
+                      onReorder={(fromIndex, toIndex) => reorderChecklistItems(list.id, fromIndex, toIndex)}
+                      renderItem={(item, itemIndex, { dragHandleProps: itemDragHandleProps }) => (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <DragHandle {...itemDragHandleProps} aria-label={`Drag ${item.text} to reorder`} />
+                          <button
+                            type="button"
+                            aria-pressed={item.checked}
+                            onClick={() => toggleChecklistItem(list.id, item.id)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              flex: 1,
+                              minHeight: 40,
+                              background: 'none',
+                              border: 'none',
+                              padding: '6px 4px',
+                              font: 'inherit',
+                              fontSize: 13,
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              color: 'var(--color-text)',
+                            }}
+                          >
+                            {item.checked ? (
+                              <CheckSquare size={18} aria-hidden="true" style={{ color: 'var(--color-accent-2-700)', flex: 'none' }} />
+                            ) : (
+                              <Square size={18} aria-hidden="true" style={{ color: 'var(--color-text-muted)', flex: 'none' }} />
+                            )}
+                            <span
+                              style={{
+                                textDecoration: item.checked ? 'line-through' : 'none',
+                                color: item.checked ? 'var(--color-text-muted)' : 'var(--color-text)',
+                              }}
+                            >
+                              {item.text}
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    />
+                    <ChecklistAddItemRow onAdd={(text) => addChecklistItem(list.id, text)} />
+                  </div>
+                )}
+              </div>
+            )
+          }}
+        />
       </div>
 
       <p

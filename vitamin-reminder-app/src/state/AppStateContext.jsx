@@ -14,6 +14,8 @@ const DEFAULT_REMINDERS = {
   dusk: { enabled: true, time: '18:00' },
 }
 
+const DEFAULT_ROUTINE_ORDER = ['checkin', 'dawn', 'midday', 'dusk']
+
 function getNotificationPermission() {
   return typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
 }
@@ -30,7 +32,9 @@ export function AppStateProvider({ children }) {
   const [notificationPermission, setNotificationPermission] = useState(getNotificationPermission)
   const [theme, setTheme] = useState(() => loadJSON('theme', 'default'))
   const [customChecklists, setCustomChecklists] = useState(() => loadJSON('customChecklists', []))
+  const [routineOrder, setRoutineOrder] = useState(() => loadJSON('routineOrder', DEFAULT_ROUTINE_ORDER))
 
+  useEffect(() => saveJSON('routineOrder', routineOrder), [routineOrder])
   useEffect(() => saveJSON('theme', theme), [theme])
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -194,7 +198,9 @@ export function AppStateProvider({ children }) {
   }, [])
 
   const addChecklist = useCallback((title) => {
-    setCustomChecklists((previous) => [...previous, { id: createId(), title, items: [] }])
+    const id = createId()
+    setCustomChecklists((previous) => [...previous, { id, title, items: [] }])
+    setRoutineOrder((previous) => [...previous, id])
   }, [])
 
   const addChecklistItem = useCallback((checklistId, text) => {
@@ -205,21 +211,15 @@ export function AppStateProvider({ children }) {
     )
   }, [])
 
-  const reorderChecklists = useCallback((fromIndex, toIndex) => {
-    setCustomChecklists((previous) => {
-      if (
-        fromIndex === toIndex ||
-        fromIndex < 0 ||
-        toIndex < 0 ||
-        fromIndex >= previous.length ||
-        toIndex >= previous.length
-      ) {
-        return previous
-      }
-      const next = [...previous]
-      const [moved] = next.splice(fromIndex, 1)
-      next.splice(toIndex, 0, moved)
-      return next
+  // Takes the full ordered list of currently *visible* row ids (as dictated
+  // by a drag in the UI) and merges it back with whatever's currently
+  // hidden (e.g. an empty phase) so those rows keep their place, appended
+  // after the visible ones, instead of being dropped from the order.
+  const reorderRoutine = useCallback((visibleOrderedIds) => {
+    setRoutineOrder((previous) => {
+      const visibleSet = new Set(visibleOrderedIds)
+      const hidden = previous.filter((id) => !visibleSet.has(id))
+      return [...visibleOrderedIds, ...hidden]
     })
   }, [])
 
@@ -346,8 +346,9 @@ export function AppStateProvider({ children }) {
       addChecklist,
       addChecklistItem,
       toggleChecklistItem,
-      reorderChecklists,
       reorderChecklistItems,
+      routineOrder,
+      reorderRoutine,
     }),
     [
       profile,
@@ -380,8 +381,9 @@ export function AppStateProvider({ children }) {
       addChecklist,
       addChecklistItem,
       toggleChecklistItem,
-      reorderChecklists,
       reorderChecklistItems,
+      routineOrder,
+      reorderRoutine,
     ],
   )
 
