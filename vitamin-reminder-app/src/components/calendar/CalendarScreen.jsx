@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
-import { ChevronLeft, ChevronRight, Check, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, X, HelpCircle } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import { getTodayDateString, formatFriendlyDate } from '../../utils/date'
 import { getMonthMatrix, formatMonthYear, WEEKDAY_SHORT, WEEKDAY_FULL } from '../../utils/calendar'
 import { getPhaseMeta } from '../../utils/phaseMeta'
 import { describeCheckIn } from '../../utils/checkin'
+import { TUTORIALS } from '../../data/tutorials'
+import TutorialSheet from '../ui/TutorialSheet'
 
 function CalendarScreen() {
   const { history } = useAppState()
@@ -13,6 +15,7 @@ function CalendarScreen() {
 
   const [viewDate, setViewDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
   const [selectedKey, setSelectedKey] = useState(todayKey)
+  const [tutorialOpen, setTutorialOpen] = useState(false)
 
   const weeks = useMemo(() => getMonthMatrix(viewDate.getFullYear(), viewDate.getMonth()), [viewDate])
   const selectedEntry = history[selectedKey]
@@ -23,7 +26,17 @@ function CalendarScreen() {
 
   return (
     <>
-      <h1 style={{ fontSize: 22 }}>Calendar</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h1 style={{ fontSize: 22, margin: 0 }}>Calendar</h1>
+        <button
+          type="button"
+          className="btn btn-icon btn-secondary"
+          aria-label="How this screen works"
+          onClick={() => setTutorialOpen(true)}
+        >
+          <HelpCircle size={18} aria-hidden="true" />
+        </button>
+      </div>
 
       <section className="card card-sketch elev-sm" style={{ padding: 'var(--space-4)' }} aria-label="Month view">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -193,6 +206,7 @@ function CalendarScreen() {
           </div>
         )}
       </section>
+      <TutorialSheet open={tutorialOpen} onClose={() => setTutorialOpen(false)} tutorial={TUTORIALS.calendar} />
     </>
   )
 }

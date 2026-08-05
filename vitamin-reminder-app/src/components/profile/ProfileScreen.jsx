@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { MapPin, MapPinOff, Check } from 'lucide-react'
+import { MapPin, MapPinOff, Check, HelpCircle, ChevronRight } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import Field from '../ui/Field'
 import Button from '../ui/Button'
 import ReminderSettings from './ReminderSettings'
+import TutorialWalkthrough from '../tutorial/TutorialWalkthrough'
 
 const THEME_OPTIONS = [
   { id: 'default', label: 'Default', swatch: '#c67139' },
@@ -18,6 +19,7 @@ function ProfileScreen() {
   const [age, setAge] = useState(profile?.age != null ? String(profile.age) : '')
   const [saved, setSaved] = useState(false)
   const [confirmingReset, setConfirmingReset] = useState(false)
+  const [tutorialOpen, setTutorialOpen] = useState(false)
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -40,6 +42,10 @@ function ProfileScreen() {
         }),
       () => updateProfile({ locationGranted: false }),
     )
+  }
+
+  if (tutorialOpen) {
+    return <TutorialWalkthrough onClose={() => setTutorialOpen(false)} />
   }
 
   return (
@@ -106,6 +112,21 @@ function ProfileScreen() {
           </Button>
         )}
       </div>
+
+      <button type="button" className="rowcard" onClick={() => setTutorialOpen(true)}>
+        <div
+          className="iconwrap"
+          aria-hidden="true"
+          style={{ background: 'var(--color-accent-100)', color: 'var(--color-accent-700)' }}
+        >
+          <HelpCircle size={18} aria-hidden="true" />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>How to Use Solaris</div>
+          <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Revisit the quick tips for each screen</div>
+        </div>
+        <ChevronRight size={18} aria-hidden="true" style={{ color: 'var(--color-text-muted)' }} />
+      </button>
 
       <ReminderSettings />
 

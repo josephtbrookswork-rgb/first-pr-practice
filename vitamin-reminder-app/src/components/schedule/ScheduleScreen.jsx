@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { HelpCircle } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import { PHASES } from '../../utils/phaseMeta'
+import { TUTORIALS } from '../../data/tutorials'
 import Button from '../ui/Button'
+import TutorialSheet from '../ui/TutorialSheet'
 import PhaseCard from './PhaseCard'
 import AddItemSheet from './AddItemSheet'
 import AddToCabinetPrompt from './AddToCabinetPrompt'
@@ -13,6 +16,7 @@ function ScheduleScreen() {
   const [editingItem, setEditingItem] = useState(null)
   const [cabinetPrompt, setCabinetPrompt] = useState(null)
   const [cabinetPrefill, setCabinetPrefill] = useState(null)
+  const [tutorialOpen, setTutorialOpen] = useState(false)
 
   const itemsByPhase = (phaseId) => scheduleItems.filter((item) => item.phase === phaseId)
 
@@ -32,7 +36,17 @@ function ScheduleScreen() {
 
   return (
     <>
-      <h1 style={{ fontSize: 22 }}>My Schedule</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h1 style={{ fontSize: 22, margin: 0 }}>My Schedule</h1>
+        <button
+          type="button"
+          className="btn btn-icon btn-secondary"
+          aria-label="How this screen works"
+          onClick={() => setTutorialOpen(true)}
+        >
+          <HelpCircle size={18} aria-hidden="true" />
+        </button>
+      </div>
 
       {scheduleItems.length === 0 ? (
         <div
@@ -94,6 +108,7 @@ function ScheduleScreen() {
           setCabinetPrefill(null)
         }}
       />
+      <TutorialSheet open={tutorialOpen} onClose={() => setTutorialOpen(false)} tutorial={TUTORIALS.schedule} />
     </>
   )
 }

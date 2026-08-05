@@ -1,16 +1,19 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, HelpCircle } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
+import { TUTORIALS } from '../../data/tutorials'
 import PantryItemRow from './PantryItemRow'
 import AddPantrySheet from './AddPantrySheet'
 import ItemDetailScreen from './ItemDetailScreen'
 import Button from '../ui/Button'
+import TutorialSheet from '../ui/TutorialSheet'
 
 function PantryScreen() {
   const { pantryItems, addPantryItem, updatePantryItem, removePantryItem } = useAppState()
   const [addOpen, setAddOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
   const [editingItem, setEditingItem] = useState(null)
+  const [tutorialOpen, setTutorialOpen] = useState(false)
 
   const selectedItem = pantryItems.find((item) => item.id === selectedId) ?? null
 
@@ -43,9 +46,19 @@ function PantryScreen() {
     <div key="list" className="page-transition" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h1 style={{ fontSize: 22, margin: 0 }}>Pantry</h1>
-        <button type="button" className="btn btn-icon btn-secondary" aria-label="Add pantry item" onClick={() => setAddOpen(true)}>
-          <Plus size={18} aria-hidden="true" />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <button
+            type="button"
+            className="btn btn-icon btn-secondary"
+            aria-label="How this screen works"
+            onClick={() => setTutorialOpen(true)}
+          >
+            <HelpCircle size={18} aria-hidden="true" />
+          </button>
+          <button type="button" className="btn btn-icon btn-secondary" aria-label="Add pantry item" onClick={() => setAddOpen(true)}>
+            <Plus size={18} aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
       {pantryItems.length === 0 ? (
@@ -79,6 +92,7 @@ function PantryScreen() {
       )}
 
       <AddPantrySheet open={addOpen} onClose={() => setAddOpen(false)} onSubmit={addPantryItem} />
+      <TutorialSheet open={tutorialOpen} onClose={() => setTutorialOpen(false)} tutorial={TUTORIALS.pantry} />
     </div>
   )
 }

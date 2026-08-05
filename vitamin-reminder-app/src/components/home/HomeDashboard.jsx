@@ -10,16 +10,19 @@ import {
   Square,
   CheckSquare,
   X,
+  HelpCircle,
 } from 'lucide-react'
 import { useAppState } from '../../state/AppStateContext'
 import { formatFriendlyDate, getGreeting, getTodayDateString } from '../../utils/date'
 import { getMockUvIndex, getUvRiskLabel } from '../../utils/uv'
 import { describeCheckIn } from '../../utils/checkin'
 import { getPhaseMeta, PHASES } from '../../utils/phaseMeta'
+import { TUTORIALS } from '../../data/tutorials'
 import RowCard from '../ui/RowCard'
 import Tag from '../ui/Tag'
 import StatCard from '../home/StatCard'
 import SortableList, { DragHandle } from '../ui/SortableList'
+import TutorialSheet from '../ui/TutorialSheet'
 import CheckInSheet from './CheckInSheet'
 import AddChecklistSheet from './AddChecklistSheet'
 import ChecklistAddItemRow from './ChecklistAddItemRow'
@@ -46,6 +49,7 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
   const [checkInOpen, setCheckInOpen] = useState(false)
   const [addChecklistOpen, setAddChecklistOpen] = useState(false)
   const [expandedChecklists, setExpandedChecklists] = useState(() => new Set())
+  const [tutorialOpen, setTutorialOpen] = useState(false)
 
   function toggleExpanded(id) {
     setExpandedChecklists((previous) => {
@@ -124,31 +128,41 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
           </h1>
           <span style={{ fontSize: 12, color: 'var(--color-accent-2-text)' }}>{formatFriendlyDate(now)}</span>
         </div>
-        <button
-          type="button"
-          className="avatar"
-          aria-label="Open profile"
-          onClick={onNavigateToProfile}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: 'var(--color-accent-2-100)',
-            color: 'var(--color-accent-2-800)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 18,
-            flex: 'none',
-            border: 'none',
-            padding: 0,
-            font: 'inherit',
-            cursor: 'pointer',
-          }}
-        >
-          <span aria-hidden="true">{initial}</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <button
+            type="button"
+            className="btn btn-icon btn-secondary"
+            aria-label="How this screen works"
+            onClick={() => setTutorialOpen(true)}
+          >
+            <HelpCircle size={18} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="avatar"
+            aria-label="Open profile"
+            onClick={onNavigateToProfile}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              background: 'var(--color-accent-2-100)',
+              color: 'var(--color-accent-2-800)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 700,
+              fontSize: 18,
+              flex: 'none',
+              border: 'none',
+              padding: 0,
+              font: 'inherit',
+              cursor: 'pointer',
+            }}
+          >
+            <span aria-hidden="true">{initial}</span>
+          </button>
+        </div>
       </div>
 
       {checkedInToday ? (
@@ -572,6 +586,7 @@ function HomeDashboard({ onNavigateToSchedule, onNavigateToCalendar, onNavigateT
         onClose={() => setAddChecklistOpen(false)}
         onSubmit={addChecklist}
       />
+      <TutorialSheet open={tutorialOpen} onClose={() => setTutorialOpen(false)} tutorial={TUTORIALS.home} />
     </>
   )
 }
