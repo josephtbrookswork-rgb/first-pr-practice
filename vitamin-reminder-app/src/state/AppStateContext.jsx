@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { LocalNotifications } from '@capacitor/local-notifications'
 import { createId, loadJSON, saveJSON } from '../utils/storage'
 import { getTodayDateString } from '../utils/date'
 import { pickRandomQuote } from '../utils/quotes'
@@ -7,6 +8,7 @@ const AppStateContext = createContext(null)
 
 const PHASES = ['dawn', 'midday', 'dusk']
 const PHASE_LABELS = { dawn: 'Dawn', midday: 'Midday', dusk: 'Dusk' }
+const PHASE_NOTIFICATION_IDS = { dawn: 1, midday: 2, dusk: 3 }
 
 const DEFAULT_REMINDERS = {
   dawn: { enabled: true, time: '07:30' },
@@ -15,10 +17,6 @@ const DEFAULT_REMINDERS = {
 }
 
 const DEFAULT_ROUTINE_ORDER = ['checkin', 'dawn', 'midday', 'dusk']
-
-function getNotificationPermission() {
-  return typeof Notification === 'undefined' ? 'unsupported' : Notification.permission
-}
 
 export function AppStateProvider({ children }) {
   const [profile, setProfile] = useState(() => loadJSON('profile', null))
@@ -29,7 +27,11 @@ export function AppStateProvider({ children }) {
   const [history, setHistory] = useState(() => loadJSON('history', {}))
   const [notificationsEnabled, setNotificationsEnabledState] = useState(() => loadJSON('notificationsEnabled', false))
   const [reminders, setReminders] = useState(() => loadJSON('reminders', DEFAULT_REMINDERS))
-  const [notificationPermission, setNotificationPermission] = useState(getNotificationPermission)
+  const [notificationPermission, setNotificationPermission] = useState('prompt')
+
+  useEffect(() => {
+    LocalNotifications.checkPermissions().then(({ display }) => setNotificationPermission(display))
+  }, [])
   const [theme, setTheme] = useState(() => loadJSON('theme', 'default'))
   const [customChecklists, setCustomChecklists] = useState(() => loadJSON('customChecklists', []))
   const [routineOrder, setRoutineOrder] = useState(() => loadJSON('routineOrder', DEFAULT_ROUTINE_ORDER))
@@ -174,22 +176,21 @@ export function AppStateProvider({ children }) {
       setNotificationsEnabledState(false)
       return
     }
-    if (typeof Notification === 'undefined') {
-      setNotificationsEnabledState(false)
-      return
-    }
-    if (Notification.permission === 'granted') {
-      setNotificationsEnabledState(true)
-      return
-    }
-    if (Notification.permission === 'denied') {
-      setNotificationPermission('denied')
-      setNotificationsEnabledState(false)
-      return
-    }
-    Notification.requestPermission().then((result) => {
-      setNotificationPermission(result)
-      setNotificationsEnabledState(result === 'granted')
+    LocalNotifications.checkPermissions().then(({ display }) => {
+      if (display === 'granted') {
+        setNotificationPermission('granted')
+        setNotificationsEnabledState(true)
+        return
+      }
+      if (display === 'denied') {
+        setNotificationPermission('denied')
+        setNotificationsEnabledState(false)
+        return
+      }
+      LocalNotifications.requestPermissions().then((result) => {
+        setNotificationPermission(result.display)
+        setNotificationsEnabledState(result.display === 'granted')
+      })
     })
   }, [])
 
@@ -257,52 +258,35 @@ export function AppStateProvider({ children }) {
     )
   }, [])
 
-  const scheduleItemsRef = useRef(scheduleItems)
   useEffect(() => {
-    scheduleItemsRef.current = scheduleItems
-  }, [scheduleItems])
+    const allIds = PHASES.map((phase) => ({ id: PHASE_NOTIFICATION_IDS[phase] }))
 
-  useEffect(() => {
-    if (!notificationsEnabled || notificationPermission !== 'granted') return undefined
-
-    const timeoutIds = []
-
-    function scheduleNext(phase, time) {
-      const [hours, minutes] = time.split(':').map(Number)
-      const now = new Date()
-      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0)
-      if (next <= now) next.setDate(next.getDate() + 1)
-      const delay = next.getTime() - now.getTime()
-
-      const id = setTimeout(() => {
-        const todayKey = getTodayDateString()
-        const pending = scheduleItemsRef.current.filter(
-          (item) => item.phase === phase && item.lastTakenDate !== todayKey,
-        )
-        if (pending.length > 0) {
-          try {
-            new Notification(`${PHASE_LABELS[phase]} vitamins`, {
-              body:
-                pending.length === 1
-                  ? `${pending[0].name} is still waiting.`
-                  : `${pending.length} items waiting: ${pending.map((item) => item.name).join(', ')}`,
-              tag: `solaris-${phase}`,
-            })
-          } catch {
-            // Notification constructor can throw in some environments — skip silently
-          }
-        }
-        scheduleNext(phase, time)
-      }, delay)
-
-      timeoutIds.push(id)
+    if (!notificationsEnabled || notificationPermission !== 'granted') {
+      LocalNotifications.cancel({ notifications: allIds })
+      return
     }
 
-    Object.entries(reminders).forEach(([phase, config]) => {
-      if (config.enabled) scheduleNext(phase, config.time)
+    const toSchedule = []
+    const toCancel = []
+
+    PHASES.forEach((phase) => {
+      const config = reminders[phase]
+      const id = PHASE_NOTIFICATION_IDS[phase]
+      if (config?.enabled) {
+        const [hour, minute] = config.time.split(':').map(Number)
+        toSchedule.push({
+          id,
+          title: `${PHASE_LABELS[phase]} vitamins`,
+          body: `Time to take your ${PHASE_LABELS[phase].toLowerCase()} vitamins.`,
+          schedule: { on: { hour, minute }, allowWhileIdle: true },
+        })
+      } else {
+        toCancel.push({ id })
+      }
     })
 
-    return () => timeoutIds.forEach(clearTimeout)
+    if (toCancel.length > 0) LocalNotifications.cancel({ notifications: toCancel })
+    if (toSchedule.length > 0) LocalNotifications.schedule({ notifications: toSchedule })
   }, [notificationsEnabled, notificationPermission, reminders])
 
   const today = getTodayDateString()
