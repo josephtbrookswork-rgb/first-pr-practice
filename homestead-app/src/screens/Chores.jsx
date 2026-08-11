@@ -4,6 +4,9 @@ import ChoreRow from '../components/chores/ChoreRow.jsx'
 import ChoreDetailSheet from '../components/chores/ChoreDetailSheet.jsx'
 import AddChoreSheet from '../components/chores/AddChoreSheet.jsx'
 import { useFamily } from '../context/FamilyContext.jsx'
+import { PAGE_COLOR } from '../lib/colors.js'
+
+const color = PAGE_COLOR.chores
 
 export default function Chores() {
   const { chores, viewer, viewerIsManager, completeChore, claimChore } = useFamily()
@@ -39,7 +42,7 @@ export default function Chores() {
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="flex items-center justify-center gap-2 self-start rounded-[var(--radius-pill)] bg-slate-600 px-4 py-2.5 text-sm font-semibold text-white"
+          className={`flex items-center justify-center gap-2 self-start rounded-[var(--radius-pill)] px-4 py-2.5 text-sm font-semibold ${color.solid} ${color.solidText}`}
         >
           <Plus size={16} /> New chore
         </button>

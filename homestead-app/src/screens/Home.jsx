@@ -34,7 +34,7 @@ export default function Home({ onNavigate }) {
       </div>
 
       <Card className="flex items-center gap-4 p-4">
-        <ProgressRing value={done} total={todays.length || 1} />
+        <ProgressRing value={done} total={todays.length || 1} color="var(--color-pg-green-600)" />
         <div>
           <p className="font-semibold text-neutral-900">Family today</p>
           <p className="text-sm text-neutral-600">

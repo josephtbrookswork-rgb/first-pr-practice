@@ -3,14 +3,19 @@ import Avatar from '../ui/Avatar.jsx'
 import ProfileSwitcher from './ProfileSwitcher.jsx'
 import { useFamily } from '../../context/FamilyContext.jsx'
 import { ROLE_LABEL } from '../../data/mockData.js'
+import { PAGE_COLOR } from '../../lib/colors.js'
 
-export default function TopBar({ title }) {
+export default function TopBar({ title, pageId }) {
   const { viewer } = useFamily()
   const [switcherOpen, setSwitcherOpen] = useState(false)
+  const color = PAGE_COLOR[pageId]
 
   return (
     <header className="safe-top flex items-center justify-between border-b border-neutral-200 bg-neutral-100/95 px-5 pb-3 pt-4 backdrop-blur">
-      <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{title}</h1>
+      <div className="flex items-center gap-2.5">
+        <span className={`h-6 w-1.5 shrink-0 rounded-full ${color.solid}`} aria-hidden="true" />
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{title}</h1>
+      </div>
       <button
         type="button"
         onClick={() => setSwitcherOpen(true)}

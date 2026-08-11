@@ -3,9 +3,10 @@ import { Link2 } from 'lucide-react'
 import Card from '../components/ui/Card.jsx'
 import Avatar from '../components/ui/Avatar.jsx'
 import { useFamily } from '../context/FamilyContext.jsx'
-import { MEMBER_COLOR } from '../lib/colors.js'
+import { MEMBER_COLOR, PAGE_COLOR } from '../lib/colors.js'
 
 const DAY_COUNT = 7
+const color = PAGE_COLOR.calendar
 
 function timeToMinutes(time) {
   const [, h, m, period] = time.match(/(\d+):(\d+)\s*(AM|PM)/i) ?? []
@@ -53,7 +54,7 @@ export default function Calendar() {
               type="button"
               onClick={() => setSelectedOffset(d.offset)}
               className={`flex w-14 shrink-0 flex-col items-center gap-1 rounded-[var(--radius-md)] py-2.5 transition-colors ${
-                isSelected ? 'bg-slate-600 text-white' : 'bg-white text-neutral-700'
+                isSelected ? `${color.solid} ${color.solidText}` : 'bg-white text-neutral-700'
               }`}
             >
               <span className="text-[11px] uppercase opacity-80">{d.weekday}</span>

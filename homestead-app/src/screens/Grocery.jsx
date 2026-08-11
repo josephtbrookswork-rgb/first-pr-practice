@@ -5,6 +5,9 @@ import Badge from '../components/ui/Badge.jsx'
 import Checkbox from '../components/ui/Checkbox.jsx'
 import { useFamily } from '../context/FamilyContext.jsx'
 import { AISLES, FREQUENT_ITEMS } from '../data/mockData.js'
+import { PAGE_COLOR } from '../lib/colors.js'
+
+const color = PAGE_COLOR.grocery
 
 export default function Grocery() {
   const {
@@ -156,11 +159,11 @@ export default function Grocery() {
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           placeholder={viewerIsManager ? 'Add an item…' : 'Request an item…'}
-          className="flex-1 rounded-[var(--radius-md)] border border-neutral-200 bg-white px-3 text-sm text-neutral-900 outline-none focus:border-slate-400"
+          className="flex-1 rounded-[var(--radius-md)] border border-neutral-200 bg-white px-3 text-sm text-neutral-900 outline-none focus:border-pg-yellow-400"
         />
         <button
           type="submit"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-slate-600 text-white"
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] ${color.solid} ${color.solidText}`}
           aria-label="Add item"
         >
           <Plus size={18} />

@@ -31,3 +31,45 @@ export const MEMBER_COLOR = {
     dot: 'bg-danger-500',
   },
 }
+
+// Maps each top-level page (see lib/pages.js) to its own pastel identity
+// color — used in the nav drawer and light accents on that page, kept
+// separate from MEMBER_COLOR and status tones (sage/amber/danger) so this
+// never collides with their existing meanings elsewhere in the app.
+export const PAGE_COLOR = {
+  home: {
+    solid: 'bg-pg-green-600',
+    solidText: 'text-white',
+    soft: 'bg-pg-green-100',
+    text: 'text-pg-green-700',
+    icon: 'bg-pg-green-500 text-white',
+  },
+  chores: {
+    solid: 'bg-pg-red-600',
+    solidText: 'text-white',
+    soft: 'bg-pg-red-100',
+    text: 'text-pg-red-700',
+    icon: 'bg-pg-red-500 text-white',
+  },
+  calendar: {
+    solid: 'bg-pg-blue-600',
+    solidText: 'text-white',
+    soft: 'bg-pg-blue-100',
+    text: 'text-pg-blue-700',
+    icon: 'bg-pg-blue-500 text-white',
+  },
+  grocery: {
+    solid: 'bg-pg-yellow-500',
+    solidText: 'text-neutral-900',
+    soft: 'bg-pg-yellow-100',
+    text: 'text-pg-yellow-700',
+    icon: 'bg-pg-yellow-500 text-neutral-900',
+  },
+  hub: {
+    solid: 'bg-pg-orange-600',
+    solidText: 'text-white',
+    soft: 'bg-pg-orange-100',
+    text: 'text-pg-orange-700',
+    icon: 'bg-pg-orange-500 text-white',
+  },
+}

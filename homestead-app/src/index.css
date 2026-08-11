@@ -50,6 +50,42 @@
   --color-danger-500: #c36a56;
   --color-danger-700: #8c4534;
 
+  /* Page accent colors — each section of the app gets its own pastel identity */
+  --color-pg-green-100: #e3efe0;
+  --color-pg-green-200: #c5e0bd;
+  --color-pg-green-400: #93c187;
+  --color-pg-green-500: #6fa860;
+  --color-pg-green-600: #588a4c;
+  --color-pg-green-700: #3d6034;
+
+  --color-pg-red-100: #f7e2e0;
+  --color-pg-red-200: #edc3be;
+  --color-pg-red-400: #dd8f85;
+  --color-pg-red-500: #cc6d60;
+  --color-pg-red-600: #b0503f;
+  --color-pg-red-700: #7a362a;
+
+  --color-pg-blue-100: #e1edf7;
+  --color-pg-blue-200: #bfd9ec;
+  --color-pg-blue-400: #83aed6;
+  --color-pg-blue-500: #5e8ec0;
+  --color-pg-blue-600: #4571a3;
+  --color-pg-blue-700: #2f4f70;
+
+  --color-pg-yellow-100: #faf1d6;
+  --color-pg-yellow-200: #f2df9f;
+  --color-pg-yellow-400: #e4c247;
+  --color-pg-yellow-500: #d9ad2c;
+  --color-pg-yellow-600: #b5901f;
+  --color-pg-yellow-700: #7a5f18;
+
+  --color-pg-orange-100: #fbe7d7;
+  --color-pg-orange-200: #f4cda3;
+  --color-pg-orange-400: #e8a35c;
+  --color-pg-orange-500: #dc8a3d;
+  --color-pg-orange-600: #c07030;
+  --color-pg-orange-700: #7a4a1f;
+
   --radius-md: 18px;
   --radius-lg: 26px;
   --radius-pill: 999px;

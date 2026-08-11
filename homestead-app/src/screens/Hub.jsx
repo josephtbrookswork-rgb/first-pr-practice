@@ -3,8 +3,10 @@ import { Wifi, Phone, Stethoscope, PawPrint, KeyRound, Eye, EyeOff } from 'lucid
 import Card from '../components/ui/Card.jsx'
 import Sheet from '../components/ui/Sheet.jsx'
 import { INFO_CARDS } from '../data/mockData.js'
+import { PAGE_COLOR } from '../lib/colors.js'
 
 const ICONS = { Wifi, Phone, Stethoscope, PawPrint, KeyRound }
+const color = PAGE_COLOR.hub
 
 export default function Hub() {
   const [openCard, setOpenCard] = useState(null)
@@ -24,7 +26,9 @@ export default function Hub() {
               onClick={() => setOpenCard(card)}
               className="flex flex-col items-start gap-3 p-4 text-left"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+              <span
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${color.soft} ${color.text}`}
+              >
                 <Icon size={18} />
               </span>
               <span className="font-semibold text-neutral-900">{card.title}</span>
