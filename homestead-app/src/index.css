@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
+  /* Warm neutral scale — page background, text, borders */
+  --color-neutral-50: #fbf8f2;
+  --color-neutral-100: #f6f0e4;
+  --color-neutral-200: #ece3d2;
+  --color-neutral-300: #ddd0b8;
+  --color-neutral-400: #c2b296;
+  --color-neutral-500: #a59372;
+  --color-neutral-600: #8a7859;
+  --color-neutral-700: #6b5d45;
+  --color-neutral-800: #4a4030;
+  --color-neutral-900: #2e2820;
+
+  /* Slate blue — primary brand, structure, active states */
+  --color-slate-50: #eef2f6;
+  --color-slate-100: #dce5ee;
+  --color-slate-200: #b9cbdd;
+  --color-slate-300: #91aec9;
+  --color-slate-400: #6f93b3;
+  --color-slate-500: #4f7699;
+  --color-slate-600: #3e5c76;
+  --color-slate-700: #304a5e;
+  --color-slate-800: #24384a;
+  --color-slate-900: #192834;
+
+  /* Sage green — completion, positive status */
+  --color-sage-100: #e4eee1;
+  --color-sage-200: #c8ddc3;
+  --color-sage-400: #9ab395;
+  --color-sage-500: #7a9d78;
+  --color-sage-600: #5f8262;
+  --color-sage-700: #4a6b4c;
+
+  /* Soft amber — priority, due-soon, gentle highlight */
+  --color-amber-100: #fbf0dd;
+  --color-amber-200: #f4dcae;
+  --color-amber-400: #efc583;
+  --color-amber-500: #e0a85c;
+  --color-amber-600: #c98a3a;
+  --color-amber-800: #855520;
+
+  /* Muted terracotta — overdue / needs attention, never harsh red */
+  --color-danger-100: #f7e4de;
+  --color-danger-500: #c36a56;
+  --color-danger-700: #8c4534;
+
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px color-mix(in srgb, #2e2820 6%, transparent), 0 8px 24px
+    color-mix(in srgb, #2e2820 8%, transparent);
+  --shadow-raised: 0 4px 14px color-mix(in srgb, #2e2820 16%, transparent);
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+}
