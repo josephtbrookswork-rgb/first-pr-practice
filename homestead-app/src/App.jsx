@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { FamilyProvider } from './context/FamilyContext.jsx'
 import AppShell from './components/layout/AppShell.jsx'
+import OnboardingFlow from './onboarding/OnboardingFlow.jsx'
 import Home from './screens/Home.jsx'
 import Chores from './screens/Chores.jsx'
 import Calendar from './screens/Calendar.jsx'
 import Grocery from './screens/Grocery.jsx'
 import Hub from './screens/Hub.jsx'
+import { loadProfile, saveProfile } from './lib/profileStorage.js'
 
 const SCREENS = {
   home: Home,
@@ -16,11 +18,24 @@ const SCREENS = {
 }
 
 function App() {
+  const [profile, setProfile] = useState(loadProfile)
   const [active, setActive] = useState('home')
+
+  if (!profile) {
+    return (
+      <OnboardingFlow
+        onComplete={(p) => {
+          saveProfile(p)
+          setProfile(p)
+        }}
+      />
+    )
+  }
+
   const Screen = SCREENS[active]
 
   return (
-    <FamilyProvider>
+    <FamilyProvider profile={profile}>
       <AppShell active={active} onChange={setActive}>
         <Screen onNavigate={setActive} />
       </AppShell>

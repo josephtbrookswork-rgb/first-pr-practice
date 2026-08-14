@@ -1,28 +1,21 @@
 import { createContext, useContext, useMemo, useState } from 'react'
-import {
-  MEMBERS,
-  INITIAL_CHORES,
-  INITIAL_EVENTS,
-  INITIAL_GROCERIES,
-  isManager,
-} from '../data/mockData.js'
+import { isManager } from '../data/mockData.js'
 
 const FamilyContext = createContext(null)
 
-export function FamilyProvider({ children }) {
-  const [viewerId, setViewerId] = useState('sarah')
-  const [chores, setChores] = useState(INITIAL_CHORES)
-  const [events] = useState(INITIAL_EVENTS)
-  const [groceries, setGroceries] = useState(INITIAL_GROCERIES)
+export function FamilyProvider({ profile, children }) {
+  const [chores, setChores] = useState([])
+  const [events] = useState([])
+  const [groceries, setGroceries] = useState([])
 
-  const viewer = MEMBERS.find((m) => m.id === viewerId)
+  const viewer = profile
   const viewerIsManager = isManager(viewer.role)
-
-  const memberById = useMemo(() => Object.fromEntries(MEMBERS.map((m) => [m.id, m])), [])
+  const members = useMemo(() => [profile], [profile])
+  const memberById = useMemo(() => ({ [profile.id]: profile }), [profile])
 
   function claimChore(choreId) {
     setChores((prev) =>
-      prev.map((c) => (c.id === choreId ? { ...c, assignedTo: viewerId } : c)),
+      prev.map((c) => (c.id === choreId ? { ...c, assignedTo: viewer.id } : c)),
     )
   }
 
@@ -96,7 +89,7 @@ export function FamilyProvider({ children }) {
         name: name.trim(),
         aisle,
         status: viewerIsManager ? 'active' : 'pending_request',
-        requestedBy: viewerIsManager ? undefined : viewerId,
+        requestedBy: viewerIsManager ? undefined : viewer.id,
       },
       ...prev,
     ])
@@ -123,11 +116,10 @@ export function FamilyProvider({ children }) {
   }
 
   const value = {
-    members: MEMBERS,
+    members,
     memberById,
     viewer,
     viewerIsManager,
-    setViewerId,
     chores,
     events,
     groceries,
