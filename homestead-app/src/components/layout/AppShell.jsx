@@ -52,10 +52,15 @@ export default function AppShell({ active, onChange, onQuickAdd, children }) {
           safe areas, since it always matches whatever it reports as 0,0.
           Rounded with a fixed radius to match the display's own corner
           mask — iOS rounds every app's screen corners at the system level,
-          so hard 90-degree corners visibly clash with that curve. */}
+          so hard 90-degree corners visibly clash with that curve. 55px
+          approximates the actual display corner radius on Face ID iPhones
+          (iPhone 15 included, ~55pt) — the earlier 40px was too small, so
+          the leftover straight edge between where our curve finished and
+          the true corner was getting clipped by the OS's own mask, which
+          read as the border being "cut off" right at the edge. */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none fixed inset-0 z-50 rounded-[40px] border-[3px] transition-colors duration-200 ${color.screenBorder}`}
+        className={`pointer-events-none fixed inset-0 z-50 rounded-[55px] border-[3px] transition-colors duration-200 ${color.screenBorder}`}
       />
     </div>
   )
