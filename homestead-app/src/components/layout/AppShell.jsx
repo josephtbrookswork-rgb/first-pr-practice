@@ -42,7 +42,14 @@ export default function AppShell({ active, onChange, children }) {
 
       {/* Framing border pinned to the device's safe-area boundary (not the raw
           viewport edge), so it follows the actual usable screen on notches,
-          Dynamic Island, and home-indicator devices instead of cutting across them. */}
+          Dynamic Island, and home-indicator devices instead of cutting across them.
+          Rounded to match the display's own corner mask — iOS rounds every
+          app's screen corners at the system level, so a hard-cornered
+          rectangle here visibly clashes with that curve. There's no CSS API
+          for the actual corner radius, so we scale it off the top safe-area
+          inset: that's ~0 on square-cornered screens (older iPhones, iPads,
+          desktop) and grows with how pronounced the notch/Dynamic Island is
+          on newer ones, tracking device curvature closely enough in practice. */}
       <div
         aria-hidden="true"
         className={`pointer-events-none fixed z-50 border-[3px] transition-colors duration-200 ${color.screenBorder}`}
@@ -51,6 +58,7 @@ export default function AppShell({ active, onChange, children }) {
           right: 'env(safe-area-inset-right, 0px)',
           bottom: 'env(safe-area-inset-bottom, 0px)',
           left: 'env(safe-area-inset-left, 0px)',
+          borderRadius: 'env(safe-area-inset-top, 0px)',
         }}
       />
     </div>
