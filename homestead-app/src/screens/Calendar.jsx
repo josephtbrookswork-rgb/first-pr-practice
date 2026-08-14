@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react'
-import { Link2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link2, Plus } from 'lucide-react'
 import Card from '../components/ui/Card.jsx'
 import Avatar from '../components/ui/Avatar.jsx'
+import AddEventSheet from '../components/calendar/AddEventSheet.jsx'
 import { useFamily } from '../context/FamilyContext.jsx'
 import { MEMBER_COLOR, PAGE_COLOR } from '../lib/colors.js'
+import { buildDays } from '../lib/calendarDays.js'
 
-const DAY_COUNT = 7
 const color = PAGE_COLOR.calendar
 
 function timeToMinutes(time) {
@@ -15,28 +16,19 @@ function timeToMinutes(time) {
   return hours * 60 + Number(m)
 }
 
-function buildDays() {
-  const days = []
-  const base = new Date()
-  base.setHours(0, 0, 0, 0)
-  for (let i = 0; i < DAY_COUNT; i++) {
-    const d = new Date(base)
-    d.setDate(base.getDate() + i)
-    days.push({
-      offset: i,
-      weekday: d.toLocaleDateString(undefined, { weekday: 'short' }),
-      dayNum: d.getDate(),
-      isToday: i === 0,
-    })
-  }
-  return days
-}
-
-export default function Calendar() {
+export default function Calendar({ autoOpenAdd, onAutoOpenHandled }) {
   const { members, events, chores } = useFamily()
   const days = useMemo(buildDays, [])
   const [selectedOffset, setSelectedOffset] = useState(0)
   const [activeFilter, setActiveFilter] = useState('all')
+  const [addOpen, setAddOpen] = useState(false)
+
+  useEffect(() => {
+    if (autoOpenAdd) {
+      setAddOpen(true)
+      onAutoOpenHandled?.()
+    }
+  }, [autoOpenAdd, onAutoOpenHandled])
 
   const dayEvents = events
     .filter((e) => e.dayOffset === selectedOffset)
@@ -45,6 +37,14 @@ export default function Calendar() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5 pb-6">
+      <button
+        type="button"
+        onClick={() => setAddOpen(true)}
+        className={`flex items-center justify-center gap-2 self-start rounded-[var(--radius-pill)] px-4 py-2.5 text-sm font-semibold ${color.solid} ${color.solidText}`}
+      >
+        <Plus size={16} /> New event
+      </button>
+
       <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         {days.map((d) => {
           const isSelected = d.offset === selectedOffset
@@ -117,6 +117,12 @@ export default function Calendar() {
           )
         })}
       </section>
+
+      <AddEventSheet
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onAdded={(dayOffset) => setSelectedOffset(dayOffset)}
+      />
     </div>
   )
 }

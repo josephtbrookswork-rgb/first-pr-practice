@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Plus, X, Check, Trash2 } from 'lucide-react'
 import Card from '../components/ui/Card.jsx'
 import Badge from '../components/ui/Badge.jsx'
@@ -9,7 +9,7 @@ import { PAGE_COLOR } from '../lib/colors.js'
 
 const color = PAGE_COLOR.grocery
 
-export default function Grocery() {
+export default function Grocery({ autoOpenAdd, onAutoOpenHandled }) {
   const {
     groceries,
     memberById,
@@ -22,6 +22,14 @@ export default function Grocery() {
   } = useFamily()
   const [newItem, setNewItem] = useState('')
   const [newAisle, setNewAisle] = useState(AISLES[0])
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    if (autoOpenAdd) {
+      inputRef.current?.focus()
+      onAutoOpenHandled?.()
+    }
+  }, [autoOpenAdd, onAutoOpenHandled])
 
   const active = groceries.filter((g) => g.status === 'active')
   const requests = groceries.filter((g) => g.status === 'pending_request')
@@ -156,6 +164,7 @@ export default function Grocery() {
           ))}
         </select>
         <input
+          ref={inputRef}
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           placeholder={viewerIsManager ? 'Add an item…' : 'Request an item…'}

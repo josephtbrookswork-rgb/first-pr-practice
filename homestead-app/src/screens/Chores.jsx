@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import ChoreRow from '../components/chores/ChoreRow.jsx'
 import ChoreDetailSheet from '../components/chores/ChoreDetailSheet.jsx'
@@ -8,11 +8,18 @@ import { PAGE_COLOR } from '../lib/colors.js'
 
 const color = PAGE_COLOR.chores
 
-export default function Chores() {
+export default function Chores({ autoOpenAdd, onAutoOpenHandled }) {
   const { chores, viewer, viewerIsManager, completeChore, claimChore } = useFamily()
   const [openChoreId, setOpenChoreId] = useState(null)
   const [addOpen, setAddOpen] = useState(false)
   const openChore = chores.find((c) => c.id === openChoreId) ?? null
+
+  useEffect(() => {
+    if (autoOpenAdd) {
+      if (viewerIsManager) setAddOpen(true)
+      onAutoOpenHandled?.()
+    }
+  }, [autoOpenAdd, viewerIsManager, onAutoOpenHandled])
 
   function quickComplete(chore) {
     if (chore.status !== 'pending') return

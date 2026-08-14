@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import NavTrigger from './NavTrigger.jsx'
 import NavDrawer from './NavDrawer.jsx'
 import TopBar from './TopBar.jsx'
+import QuickAddFab from './QuickAddFab.jsx'
 import { PAGE_BY_ID } from '../../lib/pages.js'
 import { PAGE_COLOR } from '../../lib/colors.js'
 
-export default function AppShell({ active, onChange, children }) {
+export default function AppShell({ active, onChange, onQuickAdd, children }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const mainRef = useRef(null)
 
@@ -40,26 +41,21 @@ export default function AppShell({ active, onChange, children }) {
 
       <NavDrawer open={drawerOpen} active={active} onClose={() => setDrawerOpen(false)} onSelect={select} />
 
-      {/* Framing border pinned to the device's safe-area boundary (not the raw
-          viewport edge), so it follows the actual usable screen on notches,
-          Dynamic Island, and home-indicator devices instead of cutting across them.
-          Rounded to match the display's own corner mask — iOS rounds every
-          app's screen corners at the system level, so a hard-cornered
-          rectangle here visibly clashes with that curve. There's no CSS API
-          for the actual corner radius, so we scale it off the top safe-area
-          inset: that's ~0 on square-cornered screens (older iPhones, iPads,
-          desktop) and grows with how pronounced the notch/Dynamic Island is
-          on newer ones, tracking device curvature closely enough in practice. */}
+      <QuickAddFab activePage={active} onSelect={onQuickAdd} />
+
+      {/* Framing border flush against the true viewport edges. We previously
+          tried offsetting this with env(safe-area-inset-*) to dodge the
+          notch/home-indicator, but Capacitor's WKWebView already sizes its
+          viewport to the safe area itself — layering our own inset on top
+          double-counted it and left a visible gap at the top and bottom.
+          inset-0 is correct here regardless of what the WebView does with
+          safe areas, since it always matches whatever it reports as 0,0.
+          Rounded with a fixed radius to match the display's own corner
+          mask — iOS rounds every app's screen corners at the system level,
+          so hard 90-degree corners visibly clash with that curve. */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none fixed z-50 border-[3px] transition-colors duration-200 ${color.screenBorder}`}
-        style={{
-          top: 'env(safe-area-inset-top, 0px)',
-          right: 'env(safe-area-inset-right, 0px)',
-          bottom: 'env(safe-area-inset-bottom, 0px)',
-          left: 'env(safe-area-inset-left, 0px)',
-          borderRadius: 'env(safe-area-inset-top, 0px)',
-        }}
+        className={`pointer-events-none fixed inset-0 z-50 rounded-[40px] border-[3px] transition-colors duration-200 ${color.screenBorder}`}
       />
     </div>
   )

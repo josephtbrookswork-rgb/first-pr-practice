@@ -1,23 +1,44 @@
-import { useState } from 'react'
-import { Wifi, Phone, Stethoscope, PawPrint, KeyRound, Eye, EyeOff } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Wifi, Phone, Stethoscope, PawPrint, KeyRound, Eye, EyeOff, Plus } from 'lucide-react'
 import Card from '../components/ui/Card.jsx'
 import Sheet from '../components/ui/Sheet.jsx'
-import { INFO_CARDS } from '../data/mockData.js'
+import AddHubCardSheet from '../components/hub/AddHubCardSheet.jsx'
+import { useFamily } from '../context/FamilyContext.jsx'
 import { PAGE_COLOR } from '../lib/colors.js'
 
 const ICONS = { Wifi, Phone, Stethoscope, PawPrint, KeyRound }
 const color = PAGE_COLOR.hub
 
-export default function Hub() {
+export default function Hub({ autoOpenAdd, onAutoOpenHandled }) {
+  const { hubCards } = useFamily()
   const [openCard, setOpenCard] = useState(null)
+  const [addOpen, setAddOpen] = useState(false)
+
+  useEffect(() => {
+    if (autoOpenAdd) {
+      setAddOpen(true)
+      onAutoOpenHandled?.()
+    }
+  }, [autoOpenAdd, onAutoOpenHandled])
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-2 pb-6">
-      <p className="mb-2 text-sm text-neutral-600">
-        Quick reference for anyone looking after the house.
-      </p>
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 pb-6">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-neutral-600">
+          Quick reference for anyone looking after the house.
+        </p>
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          aria-label="Add reference card"
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${color.solid} ${color.solidText}`}
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {INFO_CARDS.map((card) => {
+        {hubCards.map((card) => {
           const Icon = ICONS[card.icon]
           return (
             <Card
@@ -46,6 +67,8 @@ export default function Hub() {
           </ul>
         )}
       </Sheet>
+
+      <AddHubCardSheet open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   )
 }

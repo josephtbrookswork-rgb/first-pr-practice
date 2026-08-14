@@ -20,6 +20,9 @@ const SCREENS = {
 function App() {
   const [profile, setProfile] = useState(loadProfile)
   const [active, setActive] = useState('home')
+  // Which page's "add" flow should auto-open next — set by the quick-add
+  // FAB, cleared by the screen once it's acted on it.
+  const [pendingAdd, setPendingAdd] = useState(null)
 
   if (!profile) {
     return (
@@ -32,12 +35,21 @@ function App() {
     )
   }
 
+  function quickAdd(pageId) {
+    setActive(pageId)
+    setPendingAdd(pageId)
+  }
+
   const Screen = SCREENS[active]
 
   return (
     <FamilyProvider profile={profile}>
-      <AppShell active={active} onChange={setActive}>
-        <Screen onNavigate={setActive} />
+      <AppShell active={active} onChange={setActive} onQuickAdd={quickAdd}>
+        <Screen
+          onNavigate={setActive}
+          autoOpenAdd={pendingAdd === active}
+          onAutoOpenHandled={() => setPendingAdd(null)}
+        />
       </AppShell>
     </FamilyProvider>
   )
