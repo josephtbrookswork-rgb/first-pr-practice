@@ -11,14 +11,12 @@ export default function TopBar({ title, pageId, trigger }) {
   const color = PAGE_COLOR[pageId]
 
   return (
-    <header className="safe-top flex items-center justify-between gap-3 border-b border-neutral-200 bg-neutral-100/95 px-5 pb-3 pt-4 backdrop-blur">
+    <header
+      className={`safe-top flex items-center justify-between gap-3 px-5 pb-3 pt-4 transition-colors duration-200 ${color.headerBg}`}
+    >
       <div className="flex min-w-0 items-center gap-2">
         {trigger}
-        <h1
-          className={`truncate rounded-[10px] border-b-[3px] px-3 py-1.5 text-xl font-bold tracking-tight text-white ${color.titleBg} ${color.titleBorder}`}
-        >
-          {title}
-        </h1>
+        <h1 className="truncate text-xl font-bold tracking-tight text-white">{title}</h1>
       </div>
       <button
         type="button"

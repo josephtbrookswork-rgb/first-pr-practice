@@ -43,8 +43,8 @@ export const PAGE_COLOR = {
     soft: 'bg-pg-green-100',
     text: 'text-pg-green-700',
     icon: 'bg-pg-green-500 text-white',
-    titleBg: 'bg-pg-green-700',
-    titleBorder: 'border-pg-green-500',
+    headerBg: 'bg-pg-green-700',
+    screenBorder: 'border-pg-green-400',
   },
   chores: {
     solid: 'bg-pg-red-600',
@@ -52,8 +52,8 @@ export const PAGE_COLOR = {
     soft: 'bg-pg-red-100',
     text: 'text-pg-red-700',
     icon: 'bg-pg-red-500 text-white',
-    titleBg: 'bg-pg-red-700',
-    titleBorder: 'border-pg-red-500',
+    headerBg: 'bg-pg-red-700',
+    screenBorder: 'border-pg-red-400',
   },
   calendar: {
     solid: 'bg-pg-blue-600',
@@ -61,8 +61,8 @@ export const PAGE_COLOR = {
     soft: 'bg-pg-blue-100',
     text: 'text-pg-blue-700',
     icon: 'bg-pg-blue-500 text-white',
-    titleBg: 'bg-pg-blue-700',
-    titleBorder: 'border-pg-blue-500',
+    headerBg: 'bg-pg-blue-700',
+    screenBorder: 'border-pg-blue-400',
   },
   grocery: {
     solid: 'bg-pg-yellow-500',
@@ -70,8 +70,8 @@ export const PAGE_COLOR = {
     soft: 'bg-pg-yellow-100',
     text: 'text-pg-yellow-700',
     icon: 'bg-pg-yellow-500 text-neutral-900',
-    titleBg: 'bg-pg-yellow-700',
-    titleBorder: 'border-pg-yellow-500',
+    headerBg: 'bg-pg-yellow-700',
+    screenBorder: 'border-pg-yellow-400',
   },
   hub: {
     solid: 'bg-pg-orange-600',
@@ -79,7 +79,7 @@ export const PAGE_COLOR = {
     soft: 'bg-pg-orange-100',
     text: 'text-pg-orange-700',
     icon: 'bg-pg-orange-500 text-white',
-    titleBg: 'bg-pg-orange-700',
-    titleBorder: 'border-pg-orange-500',
+    headerBg: 'bg-pg-orange-700',
+    screenBorder: 'border-pg-orange-400',
   },
 }
