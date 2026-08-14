@@ -25,9 +25,7 @@ export default function AppShell({ active, onChange, children }) {
   }
 
   return (
-    <div
-      className={`flex h-dvh w-full flex-col overflow-hidden border-[3px] bg-neutral-100 transition-colors duration-200 ${color.screenBorder}`}
-    >
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-neutral-100">
       <TopBar
         title={page.title}
         pageId={active}
@@ -41,6 +39,20 @@ export default function AppShell({ active, onChange, children }) {
       </main>
 
       <NavDrawer open={drawerOpen} active={active} onClose={() => setDrawerOpen(false)} onSelect={select} />
+
+      {/* Framing border pinned to the device's safe-area boundary (not the raw
+          viewport edge), so it follows the actual usable screen on notches,
+          Dynamic Island, and home-indicator devices instead of cutting across them. */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none fixed z-50 border-[3px] transition-colors duration-200 ${color.screenBorder}`}
+        style={{
+          top: 'env(safe-area-inset-top, 0px)',
+          right: 'env(safe-area-inset-right, 0px)',
+          bottom: 'env(safe-area-inset-bottom, 0px)',
+          left: 'env(safe-area-inset-left, 0px)',
+        }}
+      />
     </div>
   )
 }
