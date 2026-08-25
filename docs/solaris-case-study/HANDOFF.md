@@ -12,19 +12,11 @@ this folder for the full copy and asset list.
   handoff.
 - Folded the screenshots into `case-study-copy.md`'s image gallery and marked
   that section done.
-
-## Flagged, not resolved
-- `assets/solaris-app-icon-1024.png` and `assets/solaris-mascot.png` (carried
-  over from the prior session) depict a cartoon potato character that doesn't
-  match anything in the actual `vitamin-reminder-app` codebase — the app's
-  real identity is sun/rhythm themed (dawn/midday/dusk, "SolarSync"), and its
-  real icon is an abstract purple/blue mark. These two files were very likely
-  pulled from the wrong Claude artifact in the prior session (possibly meant
-  for a different portfolio project, "Fresh Fare Farms"). See the case-study
-  doc for details. **Do not publish these two images as Solaris brand assets
-  without verifying them first** — everything else in the case study is ready.
+- `assets/solaris-app-icon-1024.png` and `assets/solaris-mascot.png` (the
+  multivitamin capsule character) are confirmed correct for Solaris — no
+  further verification needed.
 
 ## Next step
-Drop `case-study-copy.md` + the three verified screenshots (and the icon/mascot
-once resolved) into a new page on the Framer site, following the same layout as
-the other three projects.
+Drop `case-study-copy.md` + all five gallery assets into a new page on the
+Framer site, following the same layout as the other three projects. Nothing
+else outstanding.

@@ -38,27 +38,8 @@ Starting from an existing "Organic" design system handoff, I built out the full 
 1. `assets/home-dashboard.png` — Home dashboard (live capture, phone viewport)
 2. `assets/schedule-screen.png` — Schedule builder, dawn/midday/dusk stack (live capture)
 3. `assets/pantry-screen.png` — Pantry tracker with depletion states (live capture)
-4. `assets/solaris-app-icon-1024.png` — app icon / brand mark — **see flag below, unverified**
-5. `assets/solaris-mascot.png` — in-app mascot character — **see flag below, unverified**
-
----
-
-## ⚠️ Flag: icon/mascot assets don't match the app
-
-`solaris-app-icon-1024.png` and `solaris-mascot.png` (carried over from the prior
-session's handoff) render as a cartoon potato character. Nothing in the actual
-`vitamin-reminder-app` codebase — copy, UI, color tokens, README — references a
-potato, a food mascot, or any character at all. The app's real visual identity is
-sun/rhythm themed (dawn/midday/dusk anchors, "SolarSync" UV timing), and its actual
-current app icon/favicon (`vitamin-reminder-app/ios/.../AppIcon-512@2x.png`,
-`vitamin-reminder-app/public/favicon.svg`) is an abstract purple/blue mark, not a
-character.
-
-The potato is a plausible fit for a *different* portfolio project — "Fresh Fare
-Farms" (a farm/produce case study on the same portfolio site) — which suggests the
-prior session pulled/generated the wrong artifact and mislabeled it "Solaris app
-icon." Recommend **not** using these two files in the published case study until
-verified. The three live screenshots below are unaffected and ready to use as-is.
+4. `assets/solaris-app-icon-1024.png` — app icon / brand mark (multivitamin capsule character)
+5. `assets/solaris-mascot.png` — in-app mascot character (multivitamin capsule)
 
 ---
 
@@ -71,4 +52,4 @@ Live captures of the running app (React + Vite dev server, phone viewport
 - `schedule-screen.png` — dawn/midday/dusk schedule builder
 - `pantry-screen.png` — pantry tracker with cost-per-serving and depletion badges
 
-No further screenshot work needed. The one open item is the icon/mascot flag above.
+All five gallery assets are ready to drop into Framer — nothing outstanding.
