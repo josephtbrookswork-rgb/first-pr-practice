@@ -6,7 +6,7 @@ import StepHeader from './StepHeader'
 function LocationStep({ headingRef, onBack, onDecision }) {
   const [status, setStatus] = useState('idle') // idle | requesting | error
 
-  function handleAllow() {
+  function handleContinue() {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
       onDecision(false, null)
       return
@@ -58,12 +58,14 @@ function LocationStep({ headingRef, onBack, onDecision }) {
         )}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-        <Button block onClick={handleAllow} disabled={status === 'requesting'}>
-          {status === 'requesting' ? 'Requesting…' : 'Allow location'}
+        <Button block onClick={handleContinue} disabled={status === 'requesting'}>
+          {status === 'requesting' ? 'Requesting…' : 'Continue'}
         </Button>
-        <Button block variant="ghost" onClick={() => onDecision(false, null)}>
-          Not now
-        </Button>
+        {status === 'error' && (
+          <Button block variant="ghost" onClick={() => onDecision(false, null)}>
+            Continue without location
+          </Button>
+        )}
       </div>
     </div>
   )
